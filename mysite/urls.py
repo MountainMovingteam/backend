@@ -16,10 +16,10 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import include, path
-
+PRE = '127.0.0.1/'
 urlpatterns = [
-    path("api/base/", include("base.urls")),
-    path("api/manager/", include("manager.urls")),
-    path("api/order/", include("order.urls")),
+    path(PRE+"api/base/", include("base.urls")),
+    path(PRE+"api/manager/", include("manager.urls")),
+    path(PRE+"api/order/", include("order.urls")),
     path("admin/", admin.site.urls),
 ]
