@@ -6,4 +6,6 @@ class Lecturer(models.Model):
     lecturer_id = models.CharField(max_length=64)
     name = models.CharField(max_length=64)
     tag = models.IntegerField()
+    class Meta:
+        db_table = 'Lecturer'
 

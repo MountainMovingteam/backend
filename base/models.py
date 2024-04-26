@@ -12,6 +12,9 @@ class Student(models.Model):
     academy = models.IntegerField()
     avatar = models.CharField(max_length=200)
 
+    class Meta:
+        db_table = 'Student'
+
 
 class Admin(models.Model):
     staff_id = models.CharField(max_length=32)
@@ -20,3 +23,6 @@ class Admin(models.Model):
     name = models.CharField(max_length=32)
     avatar = models.CharField(max_length=200)
     is_super_admin = models.BooleanField()
+
+    class Meta:
+        db_table = 'Admin'
