@@ -26,3 +26,15 @@ class Admin(models.Model):
 
     class Meta:
         db_table = 'Admin'
+
+
+class Notification(models.Model):
+    notification_id = models.IntegerField(max_length=32)
+    student = models.ForeignKey(to="Student", on_delete=models.CASCADE)
+    reason = models.CharField(max_length=64)
+    time_slot = models.TimeField()
+    read = models.BooleanField()
+    admin = models.ForeignKey(to="Admin", on_delete=models.CASCADE)
+
+    class Meta:
+        db_table = "Notification"

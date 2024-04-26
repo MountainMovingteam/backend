@@ -6,6 +6,15 @@ class Lecturer(models.Model):
     lecturer_id = models.CharField(max_length=64)
     name = models.CharField(max_length=64)
     tag = models.IntegerField()
+
     class Meta:
         db_table = 'Lecturer'
+
+
+class LecturePlace(models.Model):
+    lecture = models.ForeignKey(to="Lecturer", on_delete=models.CASCADE)
+    place   = models.ForeignKey(to="order.Place", on_delete=models.CASCADE)
+
+    class Meta:
+        db_table = "LecturePlace"
 
