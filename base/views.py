@@ -4,6 +4,7 @@ import json
 from django.contrib import auth
 from .models import Student, Admin
 from django.views.decorators.csrf import csrf_exempt
+import jwt
 
 
 # Create your views here.
@@ -14,18 +15,18 @@ def login(request):
     password = data['password']
     user = Student.objects.filter(student_id=user_id, password=password).first()
     if user:
-        request.session['id'] = user_id
+        token = jwt.encode({'id': data['id']}, 'secret_key', algorithm='HS256')
         rep = JsonResponse({
-            'token': request.COOKIES.get('sessionid'),
+            'token': token,
             'role': 0
         })
         return rep
     else:
         user = Admin.objects.filter(staff_id=user_id, password=password).first()
         if user:
-            request.session['id'] = user_id
+            token = jwt.encode({'id': data['id']}, 'secret_key', algorithm='HS256')
             rep = JsonResponse({
-                'token': request.COOKIES.get('sessionid'),
+                'token': token,
                 'role': 1
             })
             return rep
@@ -56,8 +57,8 @@ def register(request):
                            academy=data['academy'],
                            avatar=data['avatar'],
                            password=data['password'], )
-    request.session['id'] = data['id']
+    token = jwt.encode({'id': data['id']}, 'secret_key', algorithm='HS256')
     rep = JsonResponse({
-        'token': request.COOKIES.get('sessionid')
+        'token': token
     })
     return rep
