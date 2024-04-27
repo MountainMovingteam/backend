@@ -11,10 +11,9 @@ class Lecturer(models.Model):
         db_table = 'Lecturer'
 
 
-class LecturePlace(models.Model):
+class LecturerPlace(models.Model):
     lecture = models.ForeignKey(to="Lecturer", on_delete=models.CASCADE)
-    place   = models.ForeignKey(to="order.Place", on_delete=models.CASCADE)
+    place = models.ForeignKey(to="order.Place", on_delete=models.CASCADE)
 
     class Meta:
         db_table = "LecturePlace"
-

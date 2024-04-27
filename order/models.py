@@ -6,7 +6,7 @@ class Place(models.Model):
     week_num = models.IntegerField()
     time_index = models.IntegerField()  # 1-58 从周一开始
     capacity = models.IntegerField()
-    status = models.IntegerField()
+    status = models.IntegerField(blank=True)
 
     class Meta:
         db_table = 'Place'

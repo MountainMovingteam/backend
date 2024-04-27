@@ -4,6 +4,10 @@ from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse, HttpResponse
 from .models import Place, Order, Team, TeamMember
+from manager.models import Lecturer, LecturerPlace
+
+
+# from ..manager.models import Lecturer, LecturerPlace
 
 
 # Create your views here.
@@ -46,18 +50,32 @@ def group(request):
 
 
 def get_info(request):
-    pass
-    '''week_num = time.get_week_num()
-    week_day = time.get_week_day()
-    base_index = week_day * 4
     details = []
     for time_index in (1, 28):
-        place = Place.objects.filter(week_num=week_num,)
+        week_num, new_time_index = time.trans_index(time_index)
+        place = Place.objects.filter(week_num=week_num, time_index=new_time_index).first()
+        capacity = 20
+        enrolled = count_order(place['id'])
+        lecturer = ""
+        lecturer_with_place = place.lecturerPlace_set.all()
+        for l in lecturer_with_place:
+            lecturer += Lecturer.objects.filter(id=l['lecturer_id']).first()['name']
+        if enrolled == 0:
+            type = 0
+        elif capacity == enrolled:
+            type = 2
+        else:
+            type = 1
         de = {
-            "time_index":time_index,
-            "capacity":
+            "time_index": time_index,
+            "capacity": capacity,
+            "enrolled": enrolled,
+            "lecturer": lecturer,
+            "type": type
         }
-    '''
+        details.append(de)
+    return JsonResponse(details)
+
 
 def count_order(place_id):
     count = Order.objects.filter(place_id=place_id, is_person=True).count()
@@ -65,3 +83,4 @@ def count_order(place_id):
     team_with_member = TeamMember.objects.select_related('team').filter(team_id=order_with_team['team_id']).all()
     count += len(team_with_member)
     return count
+
