@@ -6,7 +6,7 @@ class Place(models.Model):
     week_num = models.IntegerField()
     time_index = models.IntegerField()  # 1-58 从周一开始
     capacity = models.IntegerField()
-    status = models.IntegerField(blank=True)
+    status = models.IntegerField(null=True, blank=True)
 
     class Meta:
         db_table = 'Place'
@@ -19,7 +19,7 @@ class Order(models.Model):
     phone = models.CharField(max_length=64)
     academy = models.IntegerField()
     is_person = models.BooleanField()
-    team = models.ForeignKey(to="Team", on_delete=models.CASCADE)
+    team = models.ForeignKey(to="Team", on_delete=models.CASCADE, null=True, blank=True)
 
     class Meta:
         db_table = 'Order'
