@@ -7,10 +7,10 @@ class Student(models.Model):
     student_id = models.CharField(max_length=32)
     password = models.CharField(max_length=64)
     email = models.CharField(max_length=64)
-    name = models.CharField(max_length=32)
-    phone = models.CharField(max_length=32)
-    academy = models.IntegerField()
-    avatar = models.CharField(max_length=200)
+    name = models.CharField(max_length=32, blank=True)
+    phone = models.CharField(max_length=32, blank=True)
+    academy = models.IntegerField(blank=True)
+    avatar = models.CharField(max_length=200, blank=True)
 
     class Meta:
         db_table = 'Student'
@@ -22,14 +22,13 @@ class Admin(models.Model):
     email = models.CharField(max_length=64)
     name = models.CharField(max_length=32)
     avatar = models.CharField(max_length=200)
-    is_super_admin = models.BooleanField()
 
     class Meta:
         db_table = 'Admin'
 
 
 class Notification(models.Model):
-    notification_id = models.IntegerField(max_length=32)
+    notification_id = models.CharField(max_length=32)
     student = models.ForeignKey(to="Student", on_delete=models.CASCADE)
     reason = models.CharField(max_length=64)
     time_slot = models.TimeField()
@@ -38,3 +37,20 @@ class Notification(models.Model):
 
     class Meta:
         db_table = "Notification"
+
+
+class Picture(models.Model):
+    image = models.CharField(max_length=200)
+
+    class Meta:
+        db_table = 'Picture'
+
+
+class Push(models.Model):
+    push_id = models.IntegerField()
+    title = models.CharField(max_length=64)
+    pre_content = models.CharField(max_length=64)
+    picture = models.CharField(max_length=200)
+
+    class Meta:
+        db_table = 'Push'
