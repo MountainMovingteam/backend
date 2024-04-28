@@ -5,7 +5,7 @@ from django.db import models
 class Place(models.Model):
     week_num = models.IntegerField()
     time_index = models.IntegerField()  # 1-58 从周一开始
-    capacity = models.IntegerField()
+    capacity = models.IntegerField(default=20)
     status = models.IntegerField(blank=True)
 
     class Meta:

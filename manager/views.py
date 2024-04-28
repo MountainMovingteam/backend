@@ -1,3 +1,211 @@
 from django.shortcuts import render
+from django.http import JsonResponse, HttpResponse
+import json
+import jwt
+import datetime
+from .lib.static_fun import *
+from .lib.static_var import *
+from .lib.static_response import *
+from .models import LecturerPlace, Lecturer
+from order.lib.time import *
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+
 
 # Create your views here.
+
+
+def query_place(request):
+    exec(ADMIN_AUTH_STR)
+
+    place_info_array = []
+    # 只看这一周和下一周的内容
+    current_week_num = get_week_num()
+    current_week_place = Place.objects.filter(week_num=current_week_num)
+    next_week_place = Place.objects.filter(week_num=current_week_num + 1)
+
+    for place in current_week_place:
+        place_info = gen_place_json(place)
+        place_info['week_num'] = CURRENT_WEEK
+        place_info_array.append(place_info)
+
+    for place in next_week_place:
+        place_info = gen_place_json(place)
+        place_info['week_num'] = NEXT_WEEK
+        place_info_array.append(place_info)
+
+    return JsonResponse({
+        'place_details': place_info_array
+    })
+
+
+def query_order(request):
+    exec(ADMIN_AUTH_STR)
+    data = json.loads(request.body.decode('utf-8'))
+
+    week_num = data['week_num']
+    time_index = data['time_index']
+
+    if week_num is None or time_index is None:
+        return place_not_exists()
+
+    week_num = week_num + get_week_num()
+
+    place = Place.objects.filter(week_num=week_num, time_index=time_index).first()
+    orders = Order.objects.filter(place=place)
+
+    order_json_array = []
+    for order in orders:
+        order_json_array.append(gen_order_json(order))
+
+    return JsonResponse({
+        'list': order_json_array
+    })
+
+
+def query_team_order(request):
+    exec(ADMIN_AUTH_STR)
+
+    data = json.loads(request.body.decode('utf-8'))
+
+    order_id = data['order_id']
+    order = Order.objects.filter(id=order_id).first()
+
+    if order is None:
+        return order_not_exists()
+
+    if order.is_person:
+        return order_type_wrong()
+
+    return gen_order_json(order)
+
+
+def reject_application(request):
+    exec(ADMIN_AUTH_STR)
+    data = json.loads(request.body.decode('utf-8'))
+
+    option = data['option']
+    order_id = data['order_id']
+
+    if order_id is None:
+        return order_not_exists()
+
+    order = Order.objects.filter(id=order_id).first()
+    user_id = order.user_id
+    user = Student.objects.filter(student_id=user_id).first()
+
+    if user is None:
+        return user_not_exists()
+
+    receive_email = user.email
+
+    sender_email = OFFICIAL_EMAIL
+
+    message = MIMEMultipart()
+    message['From'] = sender_email
+    message['To'] = receive_email
+    message['Subject'] = EMAIL_SUBJECT
+
+    body = option
+
+    message.attach(MIMEText(body, 'plain'))
+
+    smtp_server = QQ_SMTP_SERVER
+
+    port = QQ_PORT
+
+    try:
+        server = smtplib.SMTP(smtp_server, port)
+        server.starttls()
+        server.login(sender_email, PASSWORD)
+        text = message.as_string()
+        server.sendmail(sender_email, receive_email, text)
+    except Exception as e:
+        print("error in reject")
+    finally:
+        server.quit()
+    return success_respond()
+
+
+def query_all_lecturer(request):
+    exec(ADMIN_AUTH_STR)
+    return get_lecturer_json_array(Lecturer.objects.all())
+
+
+def query_lecturer(request):
+    exec(ADMIN_AUTH_STR)
+    data = json.loads(request.body.decode('utf-8'))
+    tags = data['tags']
+    content = data['content']
+
+    tags_set = query_lecturer_accord_tags(tags)
+    content_set = query_lecturer_accord_content(content)
+
+    return get_lecturer_json_array(tags_set & content_set)
+
+
+def modify_lecture_info(request):
+    exec(ADMIN_AUTH_STR)
+    data = json.loads(request.body.decode('utf-8'))
+    old_lecturer_id = data['old_num']
+
+    if Lecturer.objects.filter(lecturer_id=old_lecturer_id) is None:
+        return lecturer_not_exists()
+
+    old_lecturer = Lecturer.objects.filter(lecturer_id=old_lecturer_id).first()
+    old_lecturer.delete()
+
+    new_lecturer_id = data['num']
+    name = data['name']
+    tag = data['tag']
+    time_index = data['time_index']
+
+    if Lecturer.objects.filter(lecturer_id=new_lecturer_id) is not None:
+        return lecturer_has_exists()
+
+    Lecturer.objects.create(lecturer_id=new_lecturer_id, name=name, tag=tag)
+
+    assign_lecture_session(lecture_id=new_lecturer_id, time_index=time_index)
+
+    return success_respond()
+
+
+def add_lecturer(request):
+    exec(ADMIN_AUTH_STR)
+    data = json.loads(request.body.decode('utf-8'))
+    lecturer_id = data['num']
+    name = data['name']
+    tag = data['tag']
+
+    if Lecturer.objects.filter(lecturer_id=lecturer_id) is not None:
+        return lecturer_has_exists()
+
+    Lecturer.objects.create(lecturer_id=lecturer_id, name=name, tag=tag)
+    time_index = data['time_index']
+
+    if time_index is None:
+        return success_respond()
+
+    assign_lecture_session(lecturer_id, time_index)
+    return success_respond()
+
+
+def delete_lecturer(request):
+    exec(ADMIN_AUTH_STR)
+
+    data = json.loads(request.body.decode('utf-8'))
+    lecturer = Lecturer.objects.filter(lecturer_id=data['num']).first()
+
+    if lecturer is not None:
+        lecturer.delete()
+
+    return success_respond()
+
+
+def delete_all_lecturer(request):
+    exec(ADMIN_AUTH_STR)
+
+    Lecturer.objects.all().delete()
+
+    return success_respond()
