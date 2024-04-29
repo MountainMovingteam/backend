@@ -38,7 +38,7 @@ def group(request):
     data = json.loads(request.body.decode('utf-8'))
     week_num, time_index = time.trans_index(data['time_index'])
     place = Place.objects.filter(week_num=week_num, time_index=time_index).first()
-    if place['capacity'] > count_order(place['id']):
+    if place.capacity > count_order(place.id):
         team = Team.objects.create(leader_name=data['leader']['name'], leader_id=data['leader']['id'],
                                    leader_phone=data['leader']['phone'], academy=data['academy'])
         persons = data['persons']
