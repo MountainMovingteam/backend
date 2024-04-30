@@ -7,10 +7,10 @@ class Student(models.Model):
     student_id = models.CharField(max_length=32)
     password = models.CharField(max_length=64)
     email = models.CharField(max_length=64)
-    name = models.CharField(max_length=32, blank=True)
-    phone = models.CharField(max_length=32, blank=True)
-    academy = models.IntegerField(blank=True)
-    avatar = models.CharField(max_length=200, blank=True)
+    name = models.CharField(max_length=32, null=True, blank=True)
+    phone = models.CharField(max_length=32, null=True, blank=True)
+    academy = models.IntegerField(null=True, blank=True)
+    avatar = models.CharField(max_length=200, null=True, blank=True)
 
     class Meta:
         db_table = 'Student'
