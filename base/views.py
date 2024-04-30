@@ -3,6 +3,7 @@ import json
 from .models import Student, Admin, Notification, Picture, Push
 import jwt
 import datetime
+from manager.lib.static_response import *
 
 
 # Create your views here.
@@ -14,7 +15,8 @@ def login(request):
     user = Student.objects.filter(student_id=user_id, password=password).first()
     login_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     if user:
-        token = jwt.encode({'id': data['id'], 'login_time': login_time, 'role': 0}, 'secret_key', algorithm='HS256')
+        token = jwt.encode({'id': data['id'], 'login_time': login_time, 'role': 0}, 'secret_key', algorithm='HS256',
+                           headers=headers).decode('ascii')
         rep = JsonResponse({
             'token': token,
             'role': 0
@@ -23,28 +25,22 @@ def login(request):
     else:
         user = Admin.objects.filter(staff_id=user_id, password=password).first()
         if user:
-            token = jwt.encode({'id': data['id'], 'login_time': login_time, 'role': 1}, 'secret_key',
-                               algorithm='HS256')
+            token = jwt.encode({'id': data['id'], 'login_time': login_time, 'role': 0}, 'secret_key', algorithm='HS256',
+                               headers=headers).decode('ascii')
             rep = JsonResponse({
                 'token': token,
                 'role': 1
             })
             return rep
         else:
-            return JsonResponse({
-                'code': 404,
-                'message': '用户不存在'
-            })
+            return user_not_exists()
 
 
 def register(request):
     data = json.loads(request.body.decode('utf-8'))
     print(data)
     if Student.objects.filter(student_id=data['id']):
-        return JsonResponse({
-            'code': 200,
-            'message': '用户已存在'
-        })
+        return user_has_exists()
     if data['password'] != data['comfirmPassword']:
         return JsonResponse({
             'code': 400,
@@ -210,8 +206,14 @@ def edit_info(request):
     return JsonResponse({'success': True})
 
 
+headers = {
+    'alg': "HS256",
+}
+
+
 def check_token(token):
     decoded_token = jwt.decode(token, 'secret_key', algorithms='HS256')
+
     id = decoded_token.get('id')
     login_time = decoded_token.get('login_time')
     role = decoded_token.get('role')

@@ -20,6 +20,8 @@ def login_timeout():
 def user_not_exists():
     return JsonResponse({'success': False}, status=404)
 
+def user_has_exists():
+    return JsonResponse({'success': False}, status=404)
 
 def place_not_exists():
     return JsonResponse({'success': False}, status=404)
