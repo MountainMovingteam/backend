@@ -11,21 +11,29 @@ PASSWORD = 'mydnvlynjrabciih'
 EMAIL_SUBJECT = '来自安全协会的一个短信'
 QQ_SMTP_SERVER = "smtp.qq.com"
 QQ_PORT = 587
-ADMIN_AUTH_STR = '''
-    token = request.META.get(HTTP_AUTHORIZATION)
-    if not token:
-        return none_token()
+ADMIN_AUTH_STR = """
+token = request.META.get(HTTP_AUTHORIZATION)
+if len(token) == 0 and response is None:
+    response =  none_token()
+    print(response)
 
+if response is None:
     id, role, is_login = check_token(token)
 
-    if not is_login:
-        return login_timeout()
+if response is None and not is_login:
+    response = login_timeout()
 
-    if role != ADMIN_ROLE:
-        return role_wrong()
+if response is None and role != ADMIN_ROLE:
+    response = role_wrong()
 
+if response is None:
     user = get_user(id, role)
 
-    if user is None:
-        return user_not_exists()
-'''
+if response is None and user is None:
+    response = user_not_exists()
+"""
+
+if __name__ == '__main__':
+    print(ADMIN_AUTH_STR)
+
+

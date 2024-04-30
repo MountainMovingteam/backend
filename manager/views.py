@@ -17,7 +17,10 @@ from email.mime.text import MIMEText
 
 
 def query_place(request):
-    exec(ADMIN_AUTH_STR)
+    response = admin_auth(request)
+
+    if response is not None:
+        return response
 
     place_info_array = []
     # 只看这一周和下一周的内容
@@ -41,7 +44,11 @@ def query_place(request):
 
 
 def query_order(request):
-    exec(ADMIN_AUTH_STR)
+    response = admin_auth(request)
+
+    if response is not None:
+        return response
+
     data = json.loads(request.body.decode('utf-8'))
 
     week_num = data['week_num']
@@ -65,7 +72,10 @@ def query_order(request):
 
 
 def query_team_order(request):
-    exec(ADMIN_AUTH_STR)
+    response = admin_auth(request)
+
+    if response is not None:
+        return response
 
     data = json.loads(request.body.decode('utf-8'))
 
@@ -82,7 +92,10 @@ def query_team_order(request):
 
 
 def reject_application(request):
-    exec(ADMIN_AUTH_STR)
+    response = admin_auth(request)
+
+    if response is not None:
+        return response
     data = json.loads(request.body.decode('utf-8'))
 
     option = data['option']
@@ -129,12 +142,18 @@ def reject_application(request):
 
 
 def query_all_lecturer(request):
-    exec(ADMIN_AUTH_STR)
+    response = admin_auth(request)
+
+    if response is not None:
+        return response
     return get_lecturer_json_array(Lecturer.objects.all())
 
 
 def query_lecturer(request):
-    exec(ADMIN_AUTH_STR)
+    response = admin_auth(request)
+
+    if response is not None:
+        return response
     data = json.loads(request.body.decode('utf-8'))
     tags = data['tags']
     content = data['content']
@@ -146,7 +165,10 @@ def query_lecturer(request):
 
 
 def modify_lecture_info(request):
-    exec(ADMIN_AUTH_STR)
+    response = admin_auth(request)
+
+    if response is not None:
+        return response
     data = json.loads(request.body.decode('utf-8'))
     old_lecturer_id = data['old_num']
 
@@ -172,7 +194,10 @@ def modify_lecture_info(request):
 
 
 def add_lecturer(request):
-    exec(ADMIN_AUTH_STR)
+    response = admin_auth(request)
+
+    if response is not None:
+        return response
     data = json.loads(request.body.decode('utf-8'))
     lecturer_id = data['num']
     name = data['name']
@@ -192,7 +217,10 @@ def add_lecturer(request):
 
 
 def delete_lecturer(request):
-    exec(ADMIN_AUTH_STR)
+    response = admin_auth(request)
+
+    if response is not None:
+        return response
 
     data = json.loads(request.body.decode('utf-8'))
     lecturer = Lecturer.objects.filter(lecturer_id=data['num']).first()
@@ -204,7 +232,10 @@ def delete_lecturer(request):
 
 
 def delete_all_lecturer(request):
-    exec(ADMIN_AUTH_STR)
+    response = admin_auth(request)
+
+    if response is not None:
+        return response
 
     Lecturer.objects.all().delete()
 

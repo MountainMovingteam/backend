@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.urls import path
 from . import views
 
-prefix = 'api/manage/'
+
 urlpatterns = [
     path("search", views.query_place),
     path("search/details", views.query_order),
