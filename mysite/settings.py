@@ -59,13 +59,13 @@ CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_HEADERS = ('*')
 
 # 允许所有 域名/IP 跨域
-CORS_ALLOW_ALL_ORIGINS = True
-# 配置可跨域访问的 域名/IP
-CORS_ALLOWED_ORIGINS = [
-    '127.0.0.1:8000',
-    'localhost:8080',
-    'myname.com',
-]
+
+# # 配置可跨域访问的 域名/IP
+# CORS_ALLOWED_ORIGINS = [
+#     '127.0.0.1:8000',
+#     'localhost:8080',
+#     'myname.com',
+# ]
 # 使用正则表达式匹配允许访问的 域名/IP
 CORS_ALLOWED_ORIGIN_REGEXES = [
     r"^https://\w+\.example\.com$",
@@ -73,25 +73,13 @@ CORS_ALLOWED_ORIGIN_REGEXES = [
 
 # 配置允许的请求方式
 CORS_ALLOW_METHODS = [
-    '*', # * 表示允许全部请求头
+    '*',  # * 表示允许全部请求头
     'GET',
     'POST',
     'PUT',
     'PATCH',
     'DELETE',
     'OPTIONS'
-]
-
-CORS_ALLOW_HEADERS = [
-    "accept",
-    "accept-encoding",
-    "authorization",
-    "content-type",
-    "dnt",
-    "origin",
-    "user-agent",
-    "x-csrftoken",
-    "x-requested-with",
 ]
 
 TEMPLATES = [
