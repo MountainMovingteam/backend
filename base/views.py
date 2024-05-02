@@ -1,9 +1,14 @@
-from django.http import JsonResponse, HttpResponse
+import os.path
+
+from django.http import JsonResponse, HttpResponse, FileResponse
 import json
 from .models import Student, Admin, Notification, Picture, Push
 import jwt
 import datetime
 from manager.lib.static_response import *
+from django.core.files.storage import FileSystemStorage
+
+from mysite import settings
 
 
 # Create your views here.
@@ -16,7 +21,7 @@ def login(request):
     login_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     if user:
         token = jwt.encode({'id': data['id'], 'login_time': login_time, 'role': 0}, 'secret_key', algorithm='HS256',
-                           headers=headers).decode('ascii')
+                           headers=headers)  # .decode('ascii')
         rep = JsonResponse({
             'token': token,
             'role': 0
@@ -25,8 +30,8 @@ def login(request):
     else:
         user = Admin.objects.filter(staff_id=user_id, password=password).first()
         if user:
-            token = jwt.encode({'id': data['id'], 'login_time': login_time, 'role': 0}, 'secret_key', algorithm='HS256',
-                               headers=headers).decode('ascii')
+            token = jwt.encode({'id': data['id'], 'login_time': login_time, 'role': 1}, 'secret_key', algorithm='HS256',
+                               headers=headers)  # .decode('ascii')
             rep = JsonResponse({
                 'token': token,
                 'role': 1
@@ -43,19 +48,17 @@ def register(request):
         return user_has_exists()
     if data['password'] != data['comfirmPassword']:
         return JsonResponse({
-            'code': 400,
             'message': '密码不一致'
-        })
+        }, status=404)
     Student.objects.create(student_id=data['id'],
                            name=data['name'],
                            email=data['email'],
                            phone=data['phone'],
                            academy=data['academy'],
-                           avatar=data['avatar'],
                            password=data['password'], )
     token = jwt.encode(
         {'id': data['id'], 'login_time': datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), 'role': 0},
-        'secret_key', algorithm='HS256')
+        'secret_key', algorithm='HS256', headers=headers)  # .decode('ascii')
     rep = JsonResponse({
         'token': token
     })
@@ -65,12 +68,13 @@ def register(request):
 def get_info(request):
     token = request.META.get('HTTP_AUTHORIZATION')
     if not token:
-        return JsonResponse({'success': False})
+        return none_token()
     id, role, is_login = check_token(token)
     if not is_login:
-        return JsonResponse({'success': False})
-
+        return login_timeout()
     user = get_user(id, role)
+    print(id, role)
+
     return JsonResponse({
         'student_info': {
             'id': id,
@@ -78,35 +82,46 @@ def get_info(request):
             'email': user.email,
             'phone': user.phone,
             'academy': user.academy,
-            'avatar': user.avatar
         }
     })
+
+
+def get_avatar(request):
+    token = request.META.get('HTTP_AUTHORIZATION')
+    if not token:
+        return none_token()
+    id, role, is_login = check_token(token)
+    if not is_login:
+        return login_timeout()
+
+    avatar_path = os.path.join(settings.MEDIA_ROOT, id)
+    return FileResponse(open(avatar_path, 'rb'), content_type=id)
 
 
 def modify_password(request):
     token = request.META.get('HTTP_AUTHORIZATION')
     if not token:
-        return JsonResponse({'success': False})
+        return none_token()
     id, role, is_login = check_token(token)
     if not is_login:
-        return JsonResponse({'success': False})
+        return login_timeout()
     user = get_user(id, role)
 
     data = json.loads(request.body.decode('utf-8'))
     if data['password'] == data['confirmPassword']:
         user.password = data['password']
         user.save()
-        return JsonResponse({'success': True})
+        return success_respond()
     return JsonResponse({'success': False})
 
 
 def notice(request):
     token = request.META.get('HTTP_AUTHORIZATION')
     if not token:
-        return JsonResponse({'success': False})
+        return none_token()
     id, role, is_login = check_token(token)
     if not is_login:
-        return JsonResponse({'success': False})
+        return login_timeout()
     user = get_user(id, role)
 
     nos = Notification.objects.filter(student=user).all()
@@ -126,10 +141,10 @@ def notice(request):
 def notice_info(request):
     token = request.META.get('HTTP_AUTHORIZATION')
     if not token:
-        return JsonResponse({'success': False})
+        return none_token()
     id, role, is_login = check_token(token)
     if not is_login:
-        return JsonResponse({'success': False})
+        return login_timeout()
     user = get_user(id, role)
 
     data = json.loads(request.body.decode('utf-8'))
@@ -171,39 +186,51 @@ def push(request):
 def edit_info(request):
     token = request.META.get('HTTP_AUTHORIZATION')
     if not token:
-        return JsonResponse({'success': False})
+        return none_token()
     id, role, is_login = check_token(token)
     if not is_login:
-        return JsonResponse({'success': False})
+        return login_timeout()
     user = get_user(id, role)
 
-    data = json.loads(request.body.decode('utf-8'))
+    fs = FileSystemStorage()
+
+    id = request.POST['id']
+    if Student.objects.filter(student_id=id) or Admin.objects.filter(staff_id=id):
+        return user_has_exists()
+
+    name = request.POST['name']
+    email = request.POST['email']
+    phone = request.POST['phone']
+    academy = request.POST['academy']
+
+    avatar = request.FILES['avatar']
+    filename = fs.save(id, avatar)
     if role == 0:
-        if data['id']:
-            user.student_id = data['id']
-        if data['name']:
-            user.name = data['name']
-        if data['email']:
-            user.email = data['email']
-        if data['phone']:
-            user.phone = data['phone']
-        if data['academy']:
-            user.academy = data['academy']
-        if data['avatar']:
-            user.avatar = data['avatar']
+        if id:
+            user.student_id = id
+        if name:
+            user.name = name
+        if email:
+            user.email = email
+        if phone:
+            user.phone = phone
+        if academy:
+            user.academy = academy
+        if avatar:
+            user.avatar = filename
     elif role == 1:
-        if data['id']:
-            user.staff_id = data['id']
-        if data['name']:
-            user.name = data['name']
-        if data['email']:
-            user.email = data['email']
-        if data['phone']:
-            user.phone = data['phone']
-        if data['avatar']:
-            user.avatar = data['avatar']
+        if id:
+            user.staff_id = id
+        if name:
+            user.name = name
+        if email:
+            user.email = email
+        if phone:
+            user.phone = phone
+        if avatar:
+            user.avatar = filename
     user.save()
-    return JsonResponse({'success': True})
+    return success_respond()
 
 
 headers = {
