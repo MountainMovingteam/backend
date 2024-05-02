@@ -1,7 +1,8 @@
 from django.contrib import admin
 from django.urls import path
 from . import views
-
+from django.conf.urls.static import static
+from django.conf import settings
 
 urlpatterns = [
     path("search", views.query_place),
@@ -13,5 +14,5 @@ urlpatterns = [
     path("lecturer/edit", views.modify_lecture_info),
     path("lecturer/add", views.add_lecturer),
     path("lecturer/delete", views.delete_lecturer),
-    path("lecturerAll", views.delete_all_lecturer)
+    path("lecturerAll", views.delete_all_lecturer),
 ]
