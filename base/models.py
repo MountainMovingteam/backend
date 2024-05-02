@@ -10,7 +10,7 @@ class Student(models.Model):
     name = models.CharField(max_length=32, null=True, blank=True)
     phone = models.CharField(max_length=32, null=True, blank=True)
     academy = models.IntegerField(null=True, blank=True)
-    avatar = models.CharField(max_length=200, null=True, blank=True)
+    avatar = models.FileField(upload_to='images/', null=True, blank=True)
 
     class Meta:
         db_table = 'Student'
@@ -20,8 +20,10 @@ class Admin(models.Model):
     staff_id = models.CharField(max_length=32)
     password = models.CharField(max_length=64)
     email = models.CharField(max_length=64)
-    name = models.CharField(max_length=32)
-    avatar = models.CharField(max_length=200)
+    name = models.CharField(max_length=32, null=True, blank=True)
+    phone = models.CharField(max_length=32, null=True, blank=True)
+    academy = models.IntegerField(null=True, blank=True)
+    avatar = models.FileField(upload_to='images/', null=True, blank=True)
 
     class Meta:
         db_table = 'Admin'
