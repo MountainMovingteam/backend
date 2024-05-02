@@ -6,7 +6,7 @@ begin_day = datetime.datetime.strptime("2024-2-26", "%Y-%m-%d")
 def get_week_num():
     now = datetime.datetime.now()
     day_diff = (now - begin_day).days
-    return (day_diff / 7) + 1
+    return (day_diff // 7) + 1
 
 
 def get_week_day():
