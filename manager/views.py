@@ -105,6 +105,10 @@ def reject_application(request):
         return order_not_exists()
 
     order = Order.objects.filter(id=order_id).first()
+
+    if order is None:
+        return order_not_exists()
+
     user_id = order.user_id
     user = Student.objects.filter(student_id=user_id).first()
 

@@ -6,38 +6,42 @@ def success_respond():
 
 
 def role_wrong():
-    return JsonResponse({'success': False}, status=404)
+    return JsonResponse(
+        {'success': False, 'reason': 'role wrong'},
+        status=404)
 
 
 def none_token():
-    return JsonResponse({'success': False}, status=404)
+    return JsonResponse({'success': False, 'reason': 'none token'}, status=404)
 
 
 def login_timeout():
-    return JsonResponse({'success': False}, status=404)
+    return JsonResponse({'success': False, 'reason': 'login timeout'}, status=404)
 
 
 def user_not_exists():
-    return JsonResponse({'success': False}, status=404)
+    return JsonResponse({'success': False, 'reason': 'user not exists'}, status=404)
+
 
 def user_has_exists():
-    return JsonResponse({'success': False}, status=404)
+    return JsonResponse({'success': False, 'reason': 'user has existed'}, status=404)
+
 
 def place_not_exists():
-    return JsonResponse({'success': False}, status=404)
+    return JsonResponse({'success': False, 'reason': 'place not exists'}, status=404)
 
 
 def order_not_exists():
-    return JsonResponse({'success': False}, status=404)
+    return JsonResponse({'success': False, 'reason': 'order not exists'}, status=404)
 
 
 def order_type_wrong():
-    return JsonResponse({'success': False}, status=404)
+    return JsonResponse({'success': False, 'reason': 'order type is wrong'}, status=404)
 
 
 def lecturer_has_exists():
-    return JsonResponse({'success': False}, status=404)
+    return JsonResponse({'success': False, 'reason': 'lecturer has exists'}, status=404)
 
 
 def lecturer_not_exists():
-    return JsonResponse({'success': False}, status=404)
+    return JsonResponse({'success': False, 'reason': 'lecturer not exists'}, status=404)

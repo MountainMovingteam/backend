@@ -5,6 +5,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse, HttpResponse
 from .models import Place, Order, Team, TeamMember
 from manager.models import Lecturer, LecturerPlace
+from manager.lib.static_var import *
 
 
 # from ..manager.models import Lecturer, LecturerPlace
@@ -85,12 +86,10 @@ def get_info(request):
 
 
 def init_place(request):
-    list = []
-    for week_num in range(1, 16, 1):
-        for time_index in range(1, 56, 1):
-            list.append(Place(week_num=week_num, time_index=time_index, capacity=20))
-    print(list)
-    Place.objects.bulk_create(list)
+    for week_num in range(1, WEEK_NUM + 1, 1):
+        for time_index in range(1, TIMR_INDEX_NUM + 1, 1):
+            if len(Place.objects.filter(week_num=week_num, time_index=time_index)) == 0:
+                Place.objects.create(week_num=week_num, time_index=time_index, capacity=PLACE_CAPACITY)
     return JsonResponse({'success': True})
 
 

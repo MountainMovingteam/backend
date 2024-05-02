@@ -1,12 +1,12 @@
 from django.db import models
-
+from manager.lib.static_var import *
 
 # Create your models here.
 class Place(models.Model):
     week_num = models.IntegerField()
     time_index = models.IntegerField()  # 1-58 从周一开始
-    capacity = models.IntegerField()
-    status = models.IntegerField(null=True, blank=True)
+    capacity = models.IntegerField(default=PLACE_CAPACITY)
+    status = models.IntegerField(null=True, blank=True, default=0)
 
     class Meta:
         db_table = 'Place'
