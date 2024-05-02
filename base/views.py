@@ -25,7 +25,7 @@ def login(request):
     else:
         user = Admin.objects.filter(staff_id=user_id, password=password).first()
         if user:
-            token = jwt.encode({'id': data['id'], 'login_time': login_time, 'role': 0}, 'secret_key', algorithm='HS256',
+            token = jwt.encode({'id': data['id'], 'login_time': login_time, 'role': 1}, 'secret_key', algorithm='HS256',
                                headers=headers).decode('ascii')
             rep = JsonResponse({
                 'token': token,

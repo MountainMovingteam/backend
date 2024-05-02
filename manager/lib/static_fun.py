@@ -157,9 +157,9 @@ def get_lecturer_json_array(lecturer_set):
     for lecturer in lecturer_set:
         lecturer_json_array.append(gen_lecturer_json(lecturer))
 
-    return {
+    return JsonResponse({
         'list': lecturer_json_array
-    }
+    })
 
 
 def gen_lecturer_json(lecturer):
