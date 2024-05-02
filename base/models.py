@@ -23,7 +23,7 @@ class Admin(models.Model):
     name = models.CharField(max_length=32, null=True, blank=True)
     phone = models.CharField(max_length=32, null=True, blank=True)
     academy = models.IntegerField(null=True, blank=True)
-    avatar = models.FileField(upload_to='images/', null=True, blank=True)
+    avatar = models.FileField(upload_to='images/', default='media/default_avatar', null=True, blank=True)
 
     class Meta:
         db_table = 'Admin'
