@@ -163,7 +163,7 @@ def get_lecturer_json_array(lecturer_set):
 
 
 def gen_lecturer_json(lecturer):
-    place = LecturerPlace.objects.filter(lecturer=lecturer).first()
+    place = LecturerPlace.objects.filter(lecturer=lecturer).first().place
 
     return {
         'num': lecturer.lecturer_id,
