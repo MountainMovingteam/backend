@@ -58,7 +58,7 @@ def get_user(id, role):
 
 
 def assign_lecture_session(lecture_id, time_index):
-    lecturer = Lecturer.objects.filter(lecture_id=lecture_id).first()
+    lecturer = Lecturer.objects.filter(lecturer_id=lecture_id).first()
     current_week_num = get_week_num()
     # 从当前周到16周指定这个讲解人
     for i in range(current_week_num, 17):

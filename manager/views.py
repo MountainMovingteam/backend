@@ -207,10 +207,9 @@ def add_lecturer(request):
     name = data['name']
     tag = data['tag']
 
-    if Lecturer.objects.filter(lecturer_id=lecturer_id) is not None:
-        return lecturer_has_exists()
+    if len(Lecturer.objects.filter(lecturer_id=lecturer_id)) == 0:
+        Lecturer.objects.create(lecturer_id=lecturer_id, name=name, tag=tag)
 
-    Lecturer.objects.create(lecturer_id=lecturer_id, name=name, tag=tag)
     time_index = data['time_index']
 
     if time_index is None:
