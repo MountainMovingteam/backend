@@ -100,25 +100,44 @@ def query_lecturer_accord_tags(tags):
     if tags is None or len(tags) == 0:
         return set(list(Lecturer.objects.all()))
 
-    profi_set = set(list(Lecturer.objects.all()))
-    weekday_set = set(list(Lecturer.objects.all()))
-    session_set = set(list(Lecturer.objects.all()))
+    profi_set = set()
+    profi_flag = 0
+    weekday_set = set()
+    weekday_flag = 0
+    session_set = set()
+    session_flag = 0
     for tag in tags:
+
         if tag // 10 == 1:
+            profi_flag = 1
             prof = tag % 10 - 1
             profi_set = profi_set.union(query_lecturer_accord_profi(prof))
-            print(profi_set)
+
         if tag // 10 == 2:
+            weekday_flag = 1
             weekday = tag % 10
             weekday_set = weekday_set | query_lecturer_accord_weekday(weekday)
         if tag // 10 == 3:
+            session_flag = 1
             session_set = session_set | query_lecture_accord_session(session_set)
+
+    if profi_flag == 0:
+        profi_set = set(list(Lecturer.objects.all()))
+    if weekday_flag == 0:
+        weekday_set = set(list(Lecturer.objects.all()))
+
+    if session_flag == 0:
+        session_set = set(list(Lecturer.objects.all()))
 
     return profi_set & weekday_set & session_set
 
 
 def query_lecturer_accord_profi(profi):
-    lecturer_set = Lecturer.objects.filter(tag=profi)
+    print(profi)
+    lecturer_set = set()
+    for lecturer in Lecturer.objects.all():
+        if lecturer.tag == profi:
+            lecturer_set.add(lecturer)
     print(lecturer_set)
     return set(list(lecturer_set))
 

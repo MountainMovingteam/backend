@@ -52,11 +52,17 @@ def query_order(request):
 
     data = json.loads(request.body.decode('utf-8'))
 
-    week_num = data['week_num']
-    time_index = data['time_index']
+    week_num = data.get('week_num', None)
+    time_index = data.get('time_index', None)
 
     if week_num is None or time_index is None:
         return place_not_exists()
+
+    if week_num < 0 or week_num > WEEK_NUM:
+        return week_num_illegal()
+
+    if time_index < 0 or time_index > TIMR_INDEX_NUM:
+        return time_index_illegal()
 
     week_num = week_num + get_week_num()
 
@@ -80,7 +86,11 @@ def query_team_order(request):
 
     data = json.loads(request.body.decode('utf-8'))
 
-    order_id = data['order_id']
+    order_id = data.get('order_id', None)
+
+    if order_id is None:
+        return order_not_exists()
+
     order = Order.objects.filter(id=order_id).first()
 
     if order is None:
@@ -181,7 +191,6 @@ def modify_lecture_info(request):
         return lecturer_not_exists()
 
     old_lecturer = Lecturer.objects.filter(lecturer_id=old_lecturer_id).first()
-
 
     new_lecturer_id = data['num']
     name = data['name']

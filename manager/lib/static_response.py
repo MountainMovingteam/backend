@@ -49,3 +49,11 @@ def lecturer_not_exists():
 
 def lecturer_file_is_none():
     return JsonResponse({'success': False, 'reason': 'lecturer file not exists'}, status=404)
+
+
+def week_num_illegal():
+    return JsonResponse({'success': False, 'reason': 'week num is illegal'}, status=404)
+
+
+def time_index_illegal():
+    return JsonResponse({'success': False, 'reason': 'time index is illegal'}, status=404)
