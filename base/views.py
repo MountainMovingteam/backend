@@ -95,8 +95,14 @@ def get_avatar(request):
     if not is_login:
         return login_timeout()
 
-    avatar_path = os.path.join(settings.MEDIA_ROOT, id)
-    return FileResponse(open(avatar_path, 'rb'), content_type=id)
+    user = get_user(id, role)
+    if user.avatar:
+        return JsonResponse({
+            'avatar_url': user.avatar.url
+        })
+    return JsonResponse({
+        'avatar_url': '/media/default_avatar'
+    })
 
 
 def modify_password(request):
@@ -195,8 +201,8 @@ def edit_info(request):
 
     fs = FileSystemStorage()
 
-    id = request.POST['id']
-    if Student.objects.filter(student_id=id) or Admin.objects.filter(staff_id=id):
+    new_id = request.POST['id']
+    if Student.objects.filter(student_id=new_id) or Admin.objects.filter(staff_id=new_id):
         return user_has_exists()
 
     name = request.POST['name']
@@ -204,8 +210,10 @@ def edit_info(request):
     phone = request.POST['phone']
     academy = request.POST['academy']
 
-    avatar = request.FILES['avatar']
-    filename = fs.save(id, avatar)
+    if request.FILES.get('avatar', None):
+        avatar = request.FILES['avatar']
+        filename = fs.save(id, avatar)
+        user.avatar = filename
     if role == 0:
         if id:
             user.student_id = id
@@ -217,8 +225,6 @@ def edit_info(request):
             user.phone = phone
         if academy:
             user.academy = academy
-        if avatar:
-            user.avatar = filename
     elif role == 1:
         if id:
             user.staff_id = id
@@ -228,8 +234,6 @@ def edit_info(request):
             user.email = email
         if phone:
             user.phone = phone
-        if avatar:
-            user.avatar = filename
     user.save()
     return success_respond()
 
