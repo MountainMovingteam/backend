@@ -11,6 +11,7 @@ from order.lib.time import *
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+import openpyxl
 
 
 # Create your views here.
@@ -159,8 +160,8 @@ def query_lecturer(request):
     if response is not None:
         return response
     data = json.loads(request.body.decode('utf-8'))
-    tags = data['tags']
-    content = data['content']
+    tags = data.get('tags', None)
+    content = data.get('content', None)
 
     tags_set = query_lecturer_accord_tags(tags)
     content_set = query_lecturer_accord_content(content)
@@ -176,19 +177,21 @@ def modify_lecture_info(request):
     data = json.loads(request.body.decode('utf-8'))
     old_lecturer_id = data['old_num']
 
-    if Lecturer.objects.filter(lecturer_id=old_lecturer_id) is None:
+    if Lecturer.objects.filter(lecturer_id=old_lecturer_id).first() is None:
         return lecturer_not_exists()
 
     old_lecturer = Lecturer.objects.filter(lecturer_id=old_lecturer_id).first()
-    old_lecturer.delete()
+
 
     new_lecturer_id = data['num']
     name = data['name']
     tag = data['tag']
     time_index = data['time_index']
 
-    if Lecturer.objects.filter(lecturer_id=new_lecturer_id) is not None:
+    if Lecturer.objects.filter(lecturer_id=new_lecturer_id).first() is not None:
         return lecturer_has_exists()
+
+    old_lecturer.delete()
 
     Lecturer.objects.create(lecturer_id=new_lecturer_id, name=name, tag=tag)
 
@@ -243,3 +246,34 @@ def delete_all_lecturer(request):
     Lecturer.objects.all().delete()
 
     return success_respond()
+
+
+def lecturer_file_upload(request):
+    response = admin_auth(request)
+
+    if response is not None:
+        return response
+
+    uploaded_file = request.FILES.get("file")
+    print(uploaded_file)
+    if uploaded_file is None:
+        return lecturer_file_is_none()
+
+    workbook = openpyxl.load_workbook(uploaded_file)
+    worksheet = workbook.active
+    new_lecturer_list = []
+    for row in worksheet.iter_rows(values_only=True):
+        if row[XLSX_NAME] == '姓名':
+            continue
+
+        name = row[XLSX_NAME]
+        num = row[XLSX_NUM]
+        tag = XLSX_TAG_MAP[row[XLSX_TAG]]
+        if Lecturer.objects.filter(lecturer_id=num).first() is None:
+            Lecturer.objects.create(lecturer_id=num, name=name, tag=tag)
+
+        new_lecturer_list.append(Lecturer.objects.filter(lecturer_id=num).first())
+        time_index = time2time_index(row[XLSX_SCHOOL], row[XLSX_WEEKDAY], row[XLSX_TIME])
+        assign_lecture_session(num, time_index)
+
+    return get_lecturer_json_array(new_lecturer_list)

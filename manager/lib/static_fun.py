@@ -64,12 +64,13 @@ def assign_lecture_session(lecture_id, time_index):
     for i in range(current_week_num, 17):
         week_num = i
         place = Place.objects.filter(week_num=week_num, time_index=time_index).first()
-        LecturerPlace.objects.create(lecturer=lecturer, place=place)
+        if LecturerPlace.objects.filter(lecturer=lecturer, place=place).first() is None:
+            LecturerPlace.objects.create(lecturer=lecturer, place=place)
 
 
 def query_lecturer_accord_content(content):
     if content is None:
-        return Lecturer.objects.all()
+        return set(list(Lecturer.objects.all()))
 
     res_set = set()
     for lecturer in Lecturer.objects.all():
@@ -96,16 +97,17 @@ tags是一个数组
 
 
 def query_lecturer_accord_tags(tags):
-    if tags is None:
-        return Lecturer.objects.all()
+    if tags is None or len(tags) == 0:
+        return set(list(Lecturer.objects.all()))
 
-    profi_set = set()
-    weekday_set = set()
-    session_set = set()
+    profi_set = set(list(Lecturer.objects.all()))
+    weekday_set = set(list(Lecturer.objects.all()))
+    session_set = set(list(Lecturer.objects.all()))
     for tag in tags:
         if tag // 10 == 1:
             prof = tag % 10 - 1
-            profi_set = profi_set | query_lecturer_accord_profi(prof)
+            profi_set = profi_set.union(query_lecturer_accord_profi(prof))
+            print(profi_set)
         if tag // 10 == 2:
             weekday = tag % 10
             weekday_set = weekday_set | query_lecturer_accord_weekday(weekday)
@@ -117,7 +119,8 @@ def query_lecturer_accord_tags(tags):
 
 def query_lecturer_accord_profi(profi):
     lecturer_set = Lecturer.objects.filter(tag=profi)
-    return lecturer_set
+    print(lecturer_set)
+    return set(list(lecturer_set))
 
 
 def query_lecturer_accord_weekday(weekday):
@@ -163,13 +166,16 @@ def get_lecturer_json_array(lecturer_set):
 
 
 def gen_lecturer_json(lecturer):
-    place = LecturerPlace.objects.filter(lecturer=lecturer).first().place
+    place_array = set()
+    for lecturerPlace in LecturerPlace.objects.filter(lecturer=lecturer):
+        place = lecturerPlace.place
+        place_array.add(place.time_index)
 
     return {
         'num': lecturer.lecturer_id,
         'name': lecturer.name,
         'tag': lecturer.tag,
-        'time_index': place.time_index
+        'time_index': list(place_array)
     }
 
 
@@ -264,3 +270,7 @@ def gen_teamMem_json(teamMember):
         'id': teamMember.member_id,
         'name': teamMember.member_name
     }
+
+
+def time2time_index(school, weekday, time):
+    return XLSX_SCHOOL_MAP[school] * WEEK_TIME_NUM + XLSX_WEEKDAY_MAP[weekday] * DAY_TIME_NUM + XLSX_TIME_MAP[time]
