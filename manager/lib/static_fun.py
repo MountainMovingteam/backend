@@ -18,7 +18,7 @@ def admin_auth(request):
     token = request.META.get(HTTP_AUTHORIZATION)
     if len(token) == 0 and response is None:
         response = none_token()
-        print(response)
+
 
     if response is None:
         id, role, is_login = check_token(token)
@@ -97,6 +97,7 @@ tags是一个数组
 
 
 def query_lecturer_accord_tags(tags):
+
     if tags is None or len(tags) == 0:
         return set(list(Lecturer.objects.all()))
 
@@ -118,8 +119,10 @@ def query_lecturer_accord_tags(tags):
             weekday = tag % 10
             weekday_set = weekday_set | query_lecturer_accord_weekday(weekday)
         if tag // 10 == 3:
+
             session_flag = 1
-            session_set = session_set | query_lecture_accord_session(session_set)
+            session = tag % 10
+            session_set = session_set | query_lecture_accord_session(session)
 
     if profi_flag == 0:
         profi_set = set(list(Lecturer.objects.all()))
@@ -133,12 +136,12 @@ def query_lecturer_accord_tags(tags):
 
 
 def query_lecturer_accord_profi(profi):
-    print(profi)
+
     lecturer_set = set()
     for lecturer in Lecturer.objects.all():
         if lecturer.tag == profi:
             lecturer_set.add(lecturer)
-    print(lecturer_set)
+
     return set(list(lecturer_set))
 
 
@@ -157,10 +160,12 @@ def query_lecturer_accord_weekday(weekday):
 def query_lecture_accord_session(session):
     lecturer_set = set()
     for lecturerPlace in LecturerPlace.objects.all():
+
         place = lecturerPlace.place
         time_index = place.time_index
         place_session = time_index2session(time_index)
         if place_session == session:
+
             lecturer_set.add(lecturerPlace.lecturer)
 
     return lecturer_set
