@@ -45,3 +45,7 @@ def lecturer_has_exists():
 
 def lecturer_not_exists():
     return JsonResponse({'success': False, 'reason': 'lecturer not exists'}, status=404)
+
+
+def lecturer_file_is_none():
+    return JsonResponse({'success': False, 'reason': 'lecturer file not exists'}, status=404)
