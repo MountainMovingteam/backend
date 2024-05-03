@@ -31,11 +31,6 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterField(
             model_name="student",
-            name="academy",
-            field=models.IntegerField(blank=True, null=True),
-        ),
-        migrations.AlterField(
-            model_name="student",
             name="avatar",
             field=models.FileField(blank=True, null=True, upload_to="images/"),
         ),
