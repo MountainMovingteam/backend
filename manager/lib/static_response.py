@@ -31,6 +31,14 @@ def place_not_exists():
     return JsonResponse({'success': False, 'reason': 'place not exists'}, status=404)
 
 
+def place_full():
+    return JsonResponse({'success': False, 'reason': 'place is full'}, status=404)
+
+
+def place_has_group():
+    return JsonResponse({'success': False, 'reason': 'This session has already been booked by a group'}, status=404)
+
+
 def order_not_exists():
     return JsonResponse({'success': False, 'reason': 'order not exists'}, status=404)
 
