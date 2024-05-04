@@ -38,6 +38,27 @@ def admin_auth(request):
     return response
 
 
+def user_auth(request):
+    response = None
+    token = request.META.get(HTTP_AUTHORIZATION)
+    if len(token) == 0 and response is None:
+        response = none_token()
+
+
+    if response is None:
+        id, role, is_login = check_token(token)
+
+    if response is None and not is_login:
+        response = login_timeout()
+
+    if response is None:
+        user = get_user(id, role)
+
+    if response is None and user is None:
+        response = user_not_exists()
+
+    return response
+
 def check_token(token):
     decoded_token = jwt.decode(token, 'secret_key', algorithms='HS256')
     id = decoded_token.get('id')
