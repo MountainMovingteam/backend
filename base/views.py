@@ -1,4 +1,6 @@
 import os.path
+import random
+import string
 
 from django.http import JsonResponse, HttpResponse, FileResponse
 import json
@@ -198,7 +200,7 @@ def push(request):
             'id': push.push_id,
             'title': push.title,
             'pre_content': push.pre_content,
-            'picture': push.picture
+            'picture': push.picture.url
         })
     return JsonResponse({
         'total': total,
@@ -256,6 +258,35 @@ def edit_info(request):
     return success_respond()
 
 
+def add_picture(request):
+    fs = FileSystemStorage()
+    picture = Picture()
+    if request.FILES.get('image', None):
+        image = request.FILES['image']
+        filename = fs.save('picture' + generate_random_string(), image)
+        picture.image = filename
+        picture.save()
+        return success_respond()
+    return JsonResponse({'success': False, 'reason': 'no picture'}, status=404)
+
+
+def add_push(request):
+    fs = FileSystemStorage()
+    push_id = request.POST['push_id']
+    if Push.objects.filter(push_id=push_id).count() > 0:
+        return JsonResponse({'success': False}, status=404)
+
+    pre_content = request.POST['pre_content']
+    title = request.POST['title']
+    push = Push(push_id=push_id, title=title, pre_content=pre_content)
+    if request.FILES.get('picture', None):
+        picture = request.FILES['picture']
+        filename = fs.save('push' + push_id, picture)
+        push.picture = picture
+    push.save()
+    return success_respond()
+
+
 headers = {
     'alg': "HS256",
 }
@@ -279,3 +310,9 @@ def get_user(id, role):
     else:
         user = Admin.objects.filter(staff_id=id).first()
     return user
+
+
+def generate_random_string(length=10):
+    letters_and_digits = string.ascii_letters + string.digits
+    random_string = ''.join(random.choice(letters_and_digits) for i in range(length))
+    return random_string

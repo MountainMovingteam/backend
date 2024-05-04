@@ -42,7 +42,7 @@ class Notification(models.Model):
 
 
 class Picture(models.Model):
-    image = models.CharField(max_length=200)
+    image = models.FileField(upload_to='pictures/')
 
     class Meta:
         db_table = 'Picture'
@@ -52,7 +52,7 @@ class Push(models.Model):
     push_id = models.IntegerField()
     title = models.CharField(max_length=64)
     pre_content = models.CharField(max_length=64)
-    picture = models.CharField(max_length=200)
+    picture = models.FileField(upload_to='pushes/')
 
     class Meta:
         db_table = 'Push'
