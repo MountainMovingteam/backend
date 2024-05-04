@@ -27,6 +27,10 @@ def user_has_exists():
     return JsonResponse({'success': False, 'reason': 'user has existed'}, status=404)
 
 
+def password_not_match():
+    return JsonResponse({'success': False, 'reason': 'passwords do not match'}, status=404)
+
+
 def place_not_exists():
     return JsonResponse({'success': False, 'reason': 'place not exists'}, status=404)
 
