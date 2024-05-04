@@ -84,7 +84,7 @@ def get_info(request):
         return response
 
     details = []
-    for time_index in range(1, 28, 1):
+    for time_index in range(1, 57, 1):
         week_num, new_time_index = time.trans_index(time_index)
         place = Place.objects.filter(week_num=week_num, time_index=new_time_index).first()
         capacity = 20

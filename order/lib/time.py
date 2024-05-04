@@ -17,10 +17,17 @@ def get_week_day():
 def trans_index(time_index):
     # 相对-> 绝对
     flag = time_index > 28  # 0-学院路 1-沙河
-    index1 = time_index % 28
+    if time_index > 28:
+        index1 = time_index - 28
+    else:
+        index1 = time_index
     index2 = index1 + 4 * get_week_day()
-    new_week_num = get_week_num() + index2 / 28
-    new_time_index = index2 % 28 + flag * 28
+    new_week_num = get_week_num() + index2 // 29
+    if index2 > 28:
+        new_time_index = index2 - 28 + flag * 28
+    else:
+        new_time_index = index2 + flag * 28
+
     return new_week_num, new_time_index
 
 
