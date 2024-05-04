@@ -192,6 +192,7 @@ def modify_lecture_info(request):
 
     old_lecturer = Lecturer.objects.filter(lecturer_id=old_lecturer_id).first()
 
+
     new_lecturer_id = data['num']
     name = data['name']
     tag = data['tag']
