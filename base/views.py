@@ -1,4 +1,6 @@
 import os.path
+import random
+import string
 
 from django.http import JsonResponse, HttpResponse, FileResponse
 import json
@@ -75,6 +77,8 @@ def get_info(request):
         return login_timeout()
     user = get_user(id, role)
     print(id, role)
+    if user is None:
+        return user_not_exists()
 
     return JsonResponse({
         'student_info': {
@@ -96,6 +100,9 @@ def get_avatar(request):
         return login_timeout()
 
     user = get_user(id, role)
+    if user is None:
+        return user_not_exists()
+
     if user.avatar:
         return JsonResponse({
             'avatar_url': user.avatar.url
@@ -114,12 +121,15 @@ def modify_password(request):
         return login_timeout()
     user = get_user(id, role)
 
+    if user is None:
+        return user_not_exists()
+
     data = json.loads(request.body.decode('utf-8'))
     if data['password'] == data['confirmPassword']:
         user.password = data['password']
         user.save()
         return success_respond()
-    return JsonResponse({'success': False})
+    return password_not_match()
 
 
 def notice(request):
@@ -130,6 +140,9 @@ def notice(request):
     if not is_login:
         return login_timeout()
     user = get_user(id, role)
+
+    if user is None:
+        return user_not_exists()
 
     nos = Notification.objects.filter(student=user).all()
     notice_list = []
@@ -154,6 +167,9 @@ def notice_info(request):
         return login_timeout()
     user = get_user(id, role)
 
+    if user is None:
+        return user_not_exists()
+
     data = json.loads(request.body.decode('utf-8'))
     no = Notification.objects.filter(student=user, notification_id=data['notice_id']).first()
     return JsonResponse({
@@ -167,15 +183,16 @@ def pictures(request):
     pictures = Picture.objects.all()
     list = []
     for pic in pictures:
-        list.append(pic.image)
+        list.append(pic.image.url)
     return JsonResponse({
         'num': len(pictures),
-        'pictures': pictures
+        'pictures': list
     })
 
 
 def push(request):
     data = json.loads(request.body.decode('utf-8'))
+    total = Push.objects.count()
     pushes = Push.objects.filter(push_id__range=(data['start'], data['end']))
     list = []
     for push in pushes:
@@ -183,9 +200,10 @@ def push(request):
             'id': push.push_id,
             'title': push.title,
             'pre_content': push.pre_content,
-            'picture': push.picture
+            'picture': push.picture.url
         })
     return JsonResponse({
+        'total': total,
         'list': list
     })
 
@@ -198,6 +216,8 @@ def edit_info(request):
     if not is_login:
         return login_timeout()
     user = get_user(id, role)
+    if user is None:
+        return user_not_exists()
 
     fs = FileSystemStorage()
 
@@ -238,6 +258,35 @@ def edit_info(request):
     return success_respond()
 
 
+def add_picture(request):
+    fs = FileSystemStorage()
+    picture = Picture()
+    if request.FILES.get('image', None):
+        image = request.FILES['image']
+        filename = fs.save('picture' + generate_random_string(), image)
+        picture.image = filename
+        picture.save()
+        return success_respond()
+    return JsonResponse({'success': False, 'reason': 'no picture'}, status=404)
+
+
+def add_push(request):
+    fs = FileSystemStorage()
+    push_id = request.POST['push_id']
+    if Push.objects.filter(push_id=push_id).count() > 0:
+        return JsonResponse({'success': False}, status=404)
+
+    pre_content = request.POST['pre_content']
+    title = request.POST['title']
+    push = Push(push_id=push_id, title=title, pre_content=pre_content)
+    if request.FILES.get('picture', None):
+        picture = request.FILES['picture']
+        filename = fs.save('push' + push_id, picture)
+        push.picture = picture
+    push.save()
+    return success_respond()
+
+
 headers = {
     'alg': "HS256",
 }
@@ -261,3 +310,9 @@ def get_user(id, role):
     else:
         user = Admin.objects.filter(staff_id=id).first()
     return user
+
+
+def generate_random_string(length=10):
+    letters_and_digits = string.ascii_letters + string.digits
+    random_string = ''.join(random.choice(letters_and_digits) for i in range(length))
+    return random_string

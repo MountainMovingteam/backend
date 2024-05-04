@@ -27,8 +27,20 @@ def user_has_exists():
     return JsonResponse({'success': False, 'reason': 'user has existed'}, status=404)
 
 
+def password_not_match():
+    return JsonResponse({'success': False, 'reason': 'passwords do not match'}, status=404)
+
+
 def place_not_exists():
     return JsonResponse({'success': False, 'reason': 'place not exists'}, status=404)
+
+
+def place_full():
+    return JsonResponse({'success': False, 'reason': 'place is full'}, status=404)
+
+
+def place_has_group():
+    return JsonResponse({'success': False, 'reason': 'This session has already been booked by a group'}, status=404)
 
 
 def order_not_exists():
