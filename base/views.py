@@ -75,6 +75,8 @@ def get_info(request):
         return login_timeout()
     user = get_user(id, role)
     print(id, role)
+    if user is None:
+        return user_not_exists()
 
     return JsonResponse({
         'student_info': {
@@ -96,6 +98,9 @@ def get_avatar(request):
         return login_timeout()
 
     user = get_user(id, role)
+    if user is None:
+        return user_not_exists()
+
     if user.avatar:
         return JsonResponse({
             'avatar_url': user.avatar.url
@@ -114,12 +119,15 @@ def modify_password(request):
         return login_timeout()
     user = get_user(id, role)
 
+    if user is None:
+        return user_not_exists()
+
     data = json.loads(request.body.decode('utf-8'))
     if data['password'] == data['confirmPassword']:
         user.password = data['password']
         user.save()
         return success_respond()
-    return JsonResponse({'success': False})
+    return password_not_match()
 
 
 def notice(request):
@@ -130,6 +138,9 @@ def notice(request):
     if not is_login:
         return login_timeout()
     user = get_user(id, role)
+
+    if user is None:
+        return user_not_exists()
 
     nos = Notification.objects.filter(student=user).all()
     notice_list = []
@@ -154,6 +165,9 @@ def notice_info(request):
         return login_timeout()
     user = get_user(id, role)
 
+    if user is None:
+        return user_not_exists()
+
     data = json.loads(request.body.decode('utf-8'))
     no = Notification.objects.filter(student=user, notification_id=data['notice_id']).first()
     return JsonResponse({
@@ -167,15 +181,16 @@ def pictures(request):
     pictures = Picture.objects.all()
     list = []
     for pic in pictures:
-        list.append(pic.image)
+        list.append(pic.image.url)
     return JsonResponse({
         'num': len(pictures),
-        'pictures': pictures
+        'pictures': list
     })
 
 
 def push(request):
     data = json.loads(request.body.decode('utf-8'))
+    total = Push.objects.count()
     pushes = Push.objects.filter(push_id__range=(data['start'], data['end']))
     list = []
     for push in pushes:
@@ -186,6 +201,7 @@ def push(request):
             'picture': push.picture
         })
     return JsonResponse({
+        'total': total,
         'list': list
     })
 
@@ -198,6 +214,8 @@ def edit_info(request):
     if not is_login:
         return login_timeout()
     user = get_user(id, role)
+    if user is None:
+        return user_not_exists()
 
     fs = FileSystemStorage()
 
