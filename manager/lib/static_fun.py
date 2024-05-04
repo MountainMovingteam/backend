@@ -176,7 +176,7 @@ def time_index2weekday(time_index):
 
 
 def time_index2session(time_index):
-    return time_index % 4 + 1
+    return time_index % 5
 
 
 def get_lecturer_json_array(lecturer_set):
