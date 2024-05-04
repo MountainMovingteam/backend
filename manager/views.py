@@ -197,7 +197,7 @@ def modify_lecture_info(request):
     tag = data['tag']
     time_index = data['time_index']
 
-    if Lecturer.objects.filter(lecturer_id=new_lecturer_id).first() is not None:
+    if new_lecturer_id != old_lecturer_id and Lecturer.objects.filter(lecturer_id=new_lecturer_id).first() is not None:
         return lecturer_has_exists()
 
     old_lecturer.delete()
