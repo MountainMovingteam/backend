@@ -12,5 +12,7 @@ urlpatterns = [
     path("notice/info", views.notice_info),
     path("pictures", views.pictures),
     path("push", views.push),
-    path("editInfo", views.edit_info)
+    path("editInfo", views.edit_info),
+    path("addPicture", views.add_picture),
+    path("addPush", views.add_push)
 ]
