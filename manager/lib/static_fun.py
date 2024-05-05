@@ -319,3 +319,6 @@ def gen_teamMem_json(teamMember):
 
 def time2time_index(school, weekday, time):
     return XLSX_SCHOOL_MAP[school] * WEEK_TIME_NUM + XLSX_WEEKDAY_MAP[weekday] * DAY_TIME_NUM + XLSX_TIME_MAP[time]
+
+
+
