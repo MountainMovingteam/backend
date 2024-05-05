@@ -69,3 +69,7 @@ def week_num_illegal():
 
 def time_index_illegal():
     return JsonResponse({'success': False, 'reason': 'time index is illegal'}, status=404)
+
+
+def necessary_content_is_none(name):
+    return JsonResponse({'success': False, 'reason': f'necessary {name} is none'}, status=404)

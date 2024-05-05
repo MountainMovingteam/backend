@@ -56,6 +56,12 @@ def query_order(request):
     week_num = data.get('week_num', None)
     time_index = data.get('time_index', None)
 
+    if week_num is None:
+        return necessary_content_is_none('week_num')
+
+    if time_index is None:
+        return necessary_content_is_none('time_index')
+
     if week_num is None or time_index is None:
         return place_not_exists()
 
@@ -90,7 +96,7 @@ def query_team_order(request):
     order_id = data.get('order_id', None)
 
     if order_id is None:
-        return order_not_exists()
+        return necessary_content_is_none('order_id')
 
     order = Order.objects.filter(id=order_id).first()
 
@@ -192,17 +198,32 @@ def modify_lecture_info(request):
     if response is not None:
         return response
     data = json.loads(request.body.decode('utf-8'))
-    old_lecturer_id = data['old_num']
+    old_lecturer_id = data.get('old_num', None)
+
+    if old_lecturer_id is None:
+        return necessary_content_is_none('old_num')
 
     if Lecturer.objects.filter(lecturer_id=old_lecturer_id).first() is None:
         return lecturer_not_exists()
 
     old_lecturer = Lecturer.objects.filter(lecturer_id=old_lecturer_id).first()
 
-    new_lecturer_id = data['num']
-    name = data['name']
-    tag = data['tag']
-    time_index = data['time_index']
+
+    new_lecturer_id = data.get('num', None)
+    if new_lecturer_id is None:
+        return necessary_content_is_none('num')
+
+    name = data.get('name', None)
+    if name is None:
+        return necessary_content_is_none('name')
+
+    tag = data.get('tag', None)
+
+    if tag is None:
+        return necessary_content_is_none('tag')
+
+    time_index = data.get('time_index', None)
+
 
     if new_lecturer_id != old_lecturer_id and Lecturer.objects.filter(lecturer_id=new_lecturer_id).first() is not None:
         return lecturer_has_exists()
@@ -222,9 +243,18 @@ def add_lecturer(request):
     if response is not None:
         return response
     data = json.loads(request.body.decode('utf-8'))
-    lecturer_id = data['num']
-    name = data['name']
-    tag = data['tag']
+    lecturer_id = data.get('num', None)
+    if lecturer_id is None:
+        return necessary_content_is_none('num')
+
+    name = data.get('name', None)
+    if name is None:
+        return necessary_content_is_none('name')
+
+    tag = data.get('tag', None)
+
+    if tag is None:
+        return necessary_content_is_none('tag')
 
     if len(Lecturer.objects.filter(lecturer_id=lecturer_id)) == 0:
         Lecturer.objects.create(lecturer_id=lecturer_id, name=name, tag=tag)
@@ -243,8 +273,10 @@ def delete_lecturer(request):
 
     if response is not None:
         return response
-
     data = json.loads(request.body.decode('utf-8'))
+    lecturer_id = data.get('num', None)
+    if lecturer_id is None:
+        return necessary_content_is_none('num')
     lecturer = Lecturer.objects.filter(lecturer_id=data['num']).first()
 
     if lecturer is not None:
@@ -271,7 +303,7 @@ def lecturer_file_upload(request):
         return response
 
     uploaded_file = request.FILES.get("file")
-    print(uploaded_file)
+
     if uploaded_file is None:
         return lecturer_file_is_none()
 
