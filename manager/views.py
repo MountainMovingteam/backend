@@ -12,6 +12,7 @@ import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import openpyxl
+from order.lib.order_fun import delete_order
 
 
 # Create your views here.
@@ -123,42 +124,48 @@ def reject_application(request):
 
     order = Order.objects.filter(id=order_id).first()
 
-    if order is None:
-        return order_not_exists()
+    id, role, login = check_token(request.META.get(HTTP_AUTHORIZATION))
+    admin = get_user(id, 1)
+    response = delete_order(option, order_id, admin)
+    if response is not None:
+        return response
 
-    user_id = order.user_id
-    user = Student.objects.filter(student_id=user_id).first()
-
-    if user is None:
-        return user_not_exists()
-
-    receive_email = user.email
-
-    sender_email = OFFICIAL_EMAIL
-
-    message = MIMEMultipart()
-    message['From'] = sender_email
-    message['To'] = receive_email
-    message['Subject'] = EMAIL_SUBJECT
-
-    body = option
-
-    message.attach(MIMEText(body, 'plain'))
-
-    smtp_server = QQ_SMTP_SERVER
-
-    port = QQ_PORT
-
-    try:
-        server = smtplib.SMTP(smtp_server, port)
-        server.starttls()
-        server.login(sender_email, PASSWORD)
-        text = message.as_string()
-        server.sendmail(sender_email, receive_email, text)
-    except Exception as e:
-        print("error in reject")
-    finally:
-        server.quit()
+    # if order is None:
+    #     return order_not_exists()
+    #
+    # user_id = order.user_id
+    # user = Student.objects.filter(student_id=user_id).first()
+    #
+    # if user is None:
+    #     return user_not_exists()
+    #
+    # receive_email = user.email
+    #
+    # sender_email = OFFICIAL_EMAIL
+    #
+    # message = MIMEMultipart()
+    # message['From'] = sender_email
+    # message['To'] = receive_email
+    # message['Subject'] = EMAIL_SUBJECT
+    #
+    # body = option
+    #
+    # message.attach(MIMEText(body, 'plain'))
+    #
+    # smtp_server = QQ_SMTP_SERVER
+    #
+    # port = QQ_PORT
+    #
+    # try:
+    #     server = smtplib.SMTP(smtp_server, port)
+    #     server.starttls()
+    #     server.login(sender_email, PASSWORD)
+    #     text = message.as_string()
+    #     server.sendmail(sender_email, receive_email, text)
+    # except Exception as e:
+    #     print("error in reject")
+    # finally:
+    #     server.quit()
     return success_respond()
 
 
@@ -201,6 +208,7 @@ def modify_lecture_info(request):
 
     old_lecturer = Lecturer.objects.filter(lecturer_id=old_lecturer_id).first()
 
+
     new_lecturer_id = data.get('num', None)
     if new_lecturer_id is None:
         return necessary_content_is_none('num')
@@ -215,6 +223,7 @@ def modify_lecture_info(request):
         return necessary_content_is_none('tag')
 
     time_index = data.get('time_index', None)
+
 
     if new_lecturer_id != old_lecturer_id and Lecturer.objects.filter(lecturer_id=new_lecturer_id).first() is not None:
         return lecturer_has_exists()

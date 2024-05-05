@@ -33,7 +33,7 @@ class Notification(models.Model):
     notification_id = models.CharField(max_length=32)
     student = models.ForeignKey(to="Student", on_delete=models.CASCADE)
     reason = models.CharField(max_length=64)
-    time_slot = models.TimeField()
+    time_slot = models.TimeField(auto_now=True)
     read = models.BooleanField()
     admin = models.ForeignKey(to="Admin", on_delete=models.CASCADE)
 
@@ -53,6 +53,7 @@ class Push(models.Model):
     title = models.CharField(max_length=64)
     pre_content = models.CharField(max_length=64)
     picture = models.FileField(upload_to='pushes/')
+    address = models.CharField(max_length=256)
 
     class Meta:
         db_table = 'Push'
