@@ -1,6 +1,7 @@
 from django.db import models
 from manager.lib.static_var import *
 
+
 # Create your models here.
 class Place(models.Model):
     week_num = models.IntegerField()

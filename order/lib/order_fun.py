@@ -1,0 +1,28 @@
+import datetime
+
+from order.models import Order
+from base.models import Student, Admin, Notification
+from manager.lib.static_response import *
+
+
+def delete_order(reason, order_id, admin):
+    # 删除order并增加通知
+    response = None
+    order = Order.objects.filter(id=order_id).first()
+    if order is None:
+        response = order_not_exists()
+        return response
+
+    user = Student.objects.filter(student_id=order.user_id).first()
+    if user is None:
+        response = user_not_exists()
+        return response
+
+    if admin is None:
+        response = role_wrong()
+        return response
+
+    order.delete()
+    count = Notification.objects.count()
+    Notification.objects.create(notification_id=count + 1, student=user, admin=admin, reason=reason, read=False)
+    return response

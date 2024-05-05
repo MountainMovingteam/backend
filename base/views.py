@@ -200,7 +200,8 @@ def push(request):
             'id': push.push_id,
             'title': push.title,
             'pre_content': push.pre_content,
-            'picture': push.picture.url
+            'picture': push.picture.url,
+            'address': push.address
         })
     return JsonResponse({
         'total': total,
@@ -278,7 +279,8 @@ def add_push(request):
 
     pre_content = request.POST['pre_content']
     title = request.POST['title']
-    push = Push(push_id=push_id, title=title, pre_content=pre_content)
+    address = request.POST['address']
+    push = Push(push_id=push_id, title=title, pre_content=pre_content, address=address)
     if request.FILES.get('picture', None):
         picture = request.FILES['picture']
         filename = fs.save('push' + push_id, picture)
