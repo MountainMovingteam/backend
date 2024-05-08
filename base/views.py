@@ -5,11 +5,9 @@ import string
 from django.http import JsonResponse, HttpResponse, FileResponse
 import json
 from .models import Student, Admin, Notification, Picture, Push
-import jwt
-import datetime
-from manager.lib.static_response import *
 from manager.lib.static_fun import *
 from django.core.files.storage import FileSystemStorage
+from order.models import Order
 
 from mysite import settings
 
@@ -329,3 +327,18 @@ def generate_random_string(length=10):
     letters_and_digits = string.ascii_letters + string.digits
     random_string = ''.join(random.choice(letters_and_digits) for i in range(length))
     return random_string
+
+
+def get_order_log(request):
+    token = request.META.get('HTTP_AUTHORIZATION')
+    if not token:
+        return none_token()
+    id, role, is_login = check_token(token)
+    if not is_login:
+        return login_timeout()
+
+    ans = []
+    for order in Order.objects.filter(user_id=id):
+        ans.append(get_order_log_json(order))
+
+    return ans
