@@ -247,6 +247,9 @@ def add_lecturer(request):
     if lecturer_id is None:
         return necessary_content_is_none('num')
 
+    if Lecturer.objects.filter(lecturer_id=lecturer_id).count() > 0:
+        return lecturer_has_exists()
+
     name = data.get('name', None)
     if name is None:
         return necessary_content_is_none('name')
