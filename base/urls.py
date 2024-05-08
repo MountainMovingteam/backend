@@ -14,5 +14,6 @@ urlpatterns = [
     path("push", views.push),
     path("editInfo", views.edit_info),
     path("addPicture", views.add_picture),
-    path("addPush", views.add_push)
+    path("addPush", views.add_push),
+    path("orderLog", views.get_order_log)
 ]
