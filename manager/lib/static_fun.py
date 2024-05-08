@@ -11,6 +11,7 @@ from order.models import Place
 from rapidfuzz import fuzz
 from .static_var import *
 from .static_response import *
+from datetime import datetime
 
 
 def admin_auth(request):
@@ -18,7 +19,6 @@ def admin_auth(request):
     token = request.META.get(HTTP_AUTHORIZATION)
     if len(token) == 0 and response is None:
         response = none_token()
-
 
     if response is None:
         id, role, is_login = check_token(token)
@@ -44,7 +44,6 @@ def user_auth(request):
     if len(token) == 0 and response is None:
         response = none_token()
 
-
     if response is None:
         id, role, is_login = check_token(token)
 
@@ -58,6 +57,7 @@ def user_auth(request):
         response = user_not_exists()
 
     return response
+
 
 def check_token(token):
     decoded_token = jwt.decode(token, 'secret_key', algorithms='HS256')
@@ -118,7 +118,6 @@ tags是一个数组
 
 
 def query_lecturer_accord_tags(tags):
-
     if tags is None or len(tags) == 0:
         return set(list(Lecturer.objects.all()))
 
@@ -140,7 +139,6 @@ def query_lecturer_accord_tags(tags):
             weekday = tag % 10
             weekday_set = weekday_set | query_lecturer_accord_weekday(weekday)
         if tag // 10 == 3:
-
             session_flag = 1
             session = tag % 10
             session_set = session_set | query_lecture_accord_session(session)
@@ -157,7 +155,6 @@ def query_lecturer_accord_tags(tags):
 
 
 def query_lecturer_accord_profi(profi):
-
     lecturer_set = set()
     for lecturer in Lecturer.objects.all():
         if lecturer.tag == profi:
@@ -186,7 +183,6 @@ def query_lecture_accord_session(session):
         time_index = place.time_index
         place_session = time_index2session(time_index)
         if place_session == session:
-
             lecturer_set.add(lecturerPlace.lecturer)
 
     return lecturer_set
@@ -321,4 +317,50 @@ def time2time_index(school, weekday, time):
     return XLSX_SCHOOL_MAP[school] * WEEK_TIME_NUM + XLSX_WEEKDAY_MAP[weekday] * DAY_TIME_NUM + XLSX_TIME_MAP[time]
 
 
+def time_index2fabs(week_num, time_index):
+    return week_num * 56 + time_index % 28
 
+
+def current_time_index():
+    current_week_num = get_week_num()
+    current_day_num = get_week_day()
+    current_day_index = current_week_num * 56 + current_day_num * 4 - 4
+
+    current_hour = datetime.now().hour
+    current_minute = datetime.now().minute
+
+    if current_hour >= 9 and current_hour <= 10 and current_minute >= 30:
+        current_day_index = current_day_index + 1
+    if current_hour >= 11 and current_hour <= 14 and current_minute >= 30:
+        current_day_index = current_day_index + 2
+    if current_hour >= 15 and current_hour <= 16 and current_minute >= 30:
+        current_day_index = current_day_index + 3
+    if current_hour >= 17 and current_minute >= 30:
+        current_day_index = current_day_index + 4
+
+    return current_day_index
+
+
+def get_order_log_json(order):
+    place = order.place
+    week_num = place.week_num
+    time_index = place.time_index
+    type = 0
+    if current_time_index() >= time_index2fabs(week_num, time_index):
+        type = 1
+
+    return {
+        'type': type,
+        'week_num': week_num,
+        'time_index': time_index,
+        'lecturers': get_lecturers_accord_place(place)
+    }
+
+
+def get_lecturers_accord_place(place):
+    lecturers_set = set()
+    for lecturerPlace in LecturerPlace.objects.filter(place=place):
+        lecturer = lecturerPlace.lecturer
+        lecturers_set.add(lecturer.name)
+
+    return list(lecturers_set)

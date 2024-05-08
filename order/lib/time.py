@@ -14,6 +14,7 @@ def get_week_day():
     return now.weekday()
 
 
+
 def trans_index(time_index):
     # 相对-> 绝对
     flag = time_index > 28  # 0-学院路 1-沙河
