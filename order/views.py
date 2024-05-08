@@ -113,6 +113,9 @@ def get_info(request):
 
 
 def init_place(request):
+    response = admin_auth(request)
+    if response is not None:
+        return response
     for week_num in range(1, WEEK_NUM + 1, 1):
         for time_index in range(1, TIMR_INDEX_NUM + 1, 1):
             if len(Place.objects.filter(week_num=week_num, time_index=time_index)) == 0:
@@ -121,6 +124,10 @@ def init_place(request):
 
 
 def clear_place(request):
+    response = admin_auth(request)
+    if response is not None:
+        return response
+
     Place.objects.all().delete()
     return JsonResponse({'success': True})
 

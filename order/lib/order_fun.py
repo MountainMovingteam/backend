@@ -24,5 +24,7 @@ def delete_order(reason, order_id, admin):
 
     order.delete()
     count = Notification.objects.count()
-    Notification.objects.create(notification_id=count + 1, student=user, admin=admin, reason=reason, read=False)
+    print(datetime.datetime.now())
+    Notification.objects.create(notification_id=count + 1, student=user, admin=admin, reason=reason, read=False,
+                                time_slot=datetime.datetime.now().strftime("%Y-%m-%d"))
     return response
