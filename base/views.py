@@ -8,6 +8,7 @@ from .models import Student, Admin, Notification, Picture, Push
 import jwt
 import datetime
 from manager.lib.static_response import *
+from manager.lib.static_fun import *
 from django.core.files.storage import FileSystemStorage
 
 from mysite import settings
@@ -53,6 +54,7 @@ def register(request):
         return JsonResponse({
             'message': '密码不一致'
         }, status=404)
+
     Student.objects.create(student_id=data['id'],
                            name=data['name'],
                            email=data['email'],
