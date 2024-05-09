@@ -1,5 +1,6 @@
 import os.path
 import random
+import re
 import string
 
 from django.http import JsonResponse, HttpResponse, FileResponse
@@ -50,12 +51,38 @@ def login(request):
 def register(request):
     data = json.loads(request.body.decode('utf-8'))
     print(data)
+    response = check_attribute(data['id'], 'id')
+    if data['id'] is None or response is not None:
+        return response
+
     if Student.objects.filter(student_id=data['id']) or Admin.objects.filter(staff_id=data['id']):
         return user_has_exists()
+
+    response = check_attribute(data['password'], 'password')
+    if response is not None:
+        return response
+
     if data['password'] != data['comfirmPassword']:
         return JsonResponse({
-            'message': '密码不一致'
+            'success': False,
+            'reason': '密码不一致'
         }, status=404)
+
+
+    if data['email'] is not None:
+        response = check_attribute(data['email'], 'email')
+        if response is not None:
+            return response
+
+    if data['phone'] is not None:
+        response = check_attribute(data['phone'], 'phone')
+        if response is not None:
+            return response
+
+    if data['academy'] is not None:
+        response = check_attribute(data['academy'], 'academy')
+        if response is not None:
+            return response
 
     Student.objects.create(student_id=data['id'],
                            name=data['name'],
@@ -67,7 +94,8 @@ def register(request):
         {'id': data['id'], 'login_time': datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), 'role': 0},
         'secret_key', algorithm='HS256', headers=headers).decode('ascii')
     rep = JsonResponse({
-        'token': token
+        'token': token,
+        'role': 0
     })
     return rep
 
@@ -129,6 +157,11 @@ def modify_password(request):
         return user_not_exists()
 
     data = json.loads(request.body.decode('utf-8'))
+
+    response = check_attribute(data['password'], 'password')
+    if response is not None:
+        return response
+
     if data['password'] == data['confirmPassword']:
         user.password = data['password']
         user.save()
@@ -228,13 +261,27 @@ def edit_info(request):
     fs = FileSystemStorage()
 
     new_id = request.POST['id']
+    response = check_attribute(new_id, 'id')
+    if new_id is not None and response is not None:
+        return response
     if Student.objects.filter(student_id=new_id) or Admin.objects.filter(staff_id=new_id):
         return user_has_exists()
 
     name = request.POST['name']
     email = request.POST['email']
+    response = check_attribute(email, 'email')
+    if email is not None and response is not None:
+        return response
+
     phone = request.POST['phone']
+    response = check_attribute(phone, 'phone')
+    if phone is not None and response is not None:
+        return response
+
     academy = request.POST['academy']
+    response = check_attribute(academy, 'academy')
+    if academy is not None and response is not None:
+        return response
 
     if request.FILES.get('avatar', None):
         avatar = request.FILES['avatar']
@@ -333,6 +380,40 @@ def generate_random_string(length=10):
     return random_string
 
 
+
+def check_attribute(str, type):
+    if type == "password":
+        if re.search("^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,16}$", str) is None:
+            return JsonResponse({
+                'success': False,
+                'reason': '密码需要包含数字和字母，且为6~16位'
+            })
+    elif type == "email":
+        if re.search("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$", str) is None:
+            return JsonResponse({
+                'success': False,
+                'reason': '邮箱格式错误'
+            })
+    elif type == "phone":
+        if re.search("^\\d{11}$", str) is None:
+            return JsonResponse({
+                'success': False,
+                'reason': '电话格式错误'
+            })
+    elif type == "id":
+        if re.search("^(\d{8}|[A-Za-z]{2}\d{7})$", str) is None:
+            return JsonResponse({
+                'success': False,
+                'reason': '学工号格式错误'
+            })
+    elif type == 'academy':
+        if str > 100:
+            return JsonResponse({
+                'success': False,
+                'reason': '学院号错误'
+            })
+    return None
+
 def get_order_log(request):
     print("1")
     token = request.META.get('HTTP_AUTHORIZATION')
@@ -354,4 +435,6 @@ def get_order_log(request):
         print("2")
         ans.append(get_order_log_json(order))
 
+
     return JsonResponse({'list': ans})
+
