@@ -49,12 +49,13 @@ def login(request):
 def register(request):
     data = json.loads(request.body.decode('utf-8'))
     print(data)
-    if Student.objects.filter(student_id=data['id']):
+    if Student.objects.filter(student_id=data['id']) or Admin.objects.filter(staff_id=data['id']):
         return user_has_exists()
     if data['password'] != data['comfirmPassword']:
         return JsonResponse({
             'message': '密码不一致'
         }, status=404)
+
     Student.objects.create(student_id=data['id'],
                            name=data['name'],
                            email=data['email'],
@@ -198,6 +199,7 @@ def push(request):
     pushes = Push.objects.filter(push_id__range=(data['start'], data['end']))
     list = []
     for push in pushes:
+        print(push.address)
         list.append({
             'id': push.push_id,
             'title': push.title,
@@ -262,6 +264,10 @@ def edit_info(request):
 
 
 def add_picture(request):
+    response = admin_auth(request)
+    if response is not None:
+        return response
+
     fs = FileSystemStorage()
     picture = Picture()
     if request.FILES.get('image', None):
@@ -274,6 +280,10 @@ def add_picture(request):
 
 
 def add_push(request):
+    response = admin_auth(request)
+    if response is not None:
+        return response
+
     fs = FileSystemStorage()
     push_id = request.POST['push_id']
     if Push.objects.filter(push_id=push_id).count() > 0:
@@ -286,7 +296,7 @@ def add_push(request):
     if request.FILES.get('picture', None):
         picture = request.FILES['picture']
         filename = fs.save('push' + push_id, picture)
-        push.picture = picture
+        push.picture = filename
     push.save()
     return success_respond()
 
