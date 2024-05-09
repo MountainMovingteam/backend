@@ -11,7 +11,7 @@ from order.models import Place
 from rapidfuzz import fuzz
 from .static_var import *
 from .static_response import *
-from datetime import datetime
+
 
 
 def admin_auth(request):
