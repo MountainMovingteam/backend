@@ -5,7 +5,10 @@ import string
 from django.http import JsonResponse, HttpResponse, FileResponse
 import json
 from .models import Student, Admin, Notification, Picture, Push
-from manager.lib.static_fun import *
+import datetime
+import jwt
+from manager.lib.static_fun import get_order_log_json
+from manager.lib.static_response import *
 from django.core.files.storage import FileSystemStorage
 from order.models import Order
 
@@ -320,15 +323,24 @@ def generate_random_string(length=10):
 
 
 def get_order_log(request):
+    print("1")
     token = request.META.get('HTTP_AUTHORIZATION')
+    print("1")
     if not token:
         return none_token()
+    print("1")
     id, role, is_login = check_token(token)
+    print("1")
     if not is_login:
         return login_timeout()
 
     ans = []
-    for order in Order.objects.filter(user_id=id):
+    print("1")
+    orders = Order.objects.filter(user_id=id)
+    print(orders)
+    print("4")
+    for order in list(orders):
+        print("2")
         ans.append(get_order_log_json(order))
 
-    return ans
+    return JsonResponse({'list': ans})
