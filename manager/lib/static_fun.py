@@ -13,7 +13,6 @@ from .static_var import *
 from .static_response import *
 
 
-
 def admin_auth(request):
     response = None
     token = request.META.get(HTTP_AUTHORIZATION)
@@ -326,8 +325,8 @@ def current_time_index():
     current_day_num = get_week_day()
     current_day_index = current_week_num * 56 + current_day_num * 4 - 4
 
-    current_hour = datetime.now().hour
-    current_minute = datetime.now().minute
+    current_hour = datetime.datetime.now().hour
+    current_minute = datetime.datetime.now().minute
 
     if current_hour >= 9 and current_hour <= 10 and current_minute >= 30:
         current_day_index = current_day_index + 1
