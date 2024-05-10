@@ -261,25 +261,26 @@ def edit_info(request):
 
     new_id = request.POST['id']
     response = check_attribute(new_id, 'id')
-    if new_id is not None and response is not None:
-        return response
-    if Student.objects.filter(student_id=new_id) or Admin.objects.filter(staff_id=new_id):
-        return user_has_exists()
+    if new_id != "":
+        if response is not None:
+            return response
+        if Student.objects.filter(student_id=new_id) or Admin.objects.filter(staff_id=new_id):
+            return user_has_exists()
 
     name = request.POST['name']
     email = request.POST['email']
     response = check_attribute(email, 'email')
-    if email is not None and response is not None:
+    if email != "" and response is not None:
         return response
 
     phone = request.POST['phone']
     response = check_attribute(phone, 'phone')
-    if phone is not None and response is not None:
+    if phone != "" and response is not None:
         return response
 
     academy = request.POST['academy']
     response = check_attribute(academy, 'academy')
-    if academy is not None and response is not None:
+    if academy != "" and response is not None:
         return response
 
     if request.FILES.get('avatar', None):
@@ -380,6 +381,9 @@ def generate_random_string(length=10):
 
 
 def check_attribute(str, type):
+    if type != "password" and type != "id":
+        if str == "":
+            return None
     if type == "password":
         if re.search("^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,16}$", str) is None:
             return JsonResponse({
