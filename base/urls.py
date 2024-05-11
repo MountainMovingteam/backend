@@ -15,5 +15,7 @@ urlpatterns = [
     path("editInfo", views.edit_info),
     path("addPicture", views.add_picture),
     path("addPush", views.add_push),
-    path("orderLog", views.get_order_log)
+    path("orderLog", views.get_order_log),
+    path("getPublicKey", views.get_public_key),
+    path("passwordEncode", views.password_encode)
 ]
