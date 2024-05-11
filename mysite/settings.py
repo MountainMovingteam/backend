@@ -12,6 +12,9 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 import os
 from pathlib import Path
 
+from Crypto import Random
+from Crypto.PublicKey import RSA
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -156,3 +159,9 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# RSA公钥密钥生成
+random_generator = Random.new().read
+key = RSA.generate(1024, random_generator)
+private_key = key.export_key()
+public_key = key.publickey().export_key()

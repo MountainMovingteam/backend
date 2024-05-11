@@ -1,7 +1,10 @@
+import base64
 import os.path
 import random
 import re
 import string
+from Crypto.PublicKey import RSA
+from Crypto.Cipher import PKCS1_v1_5
 
 from django.http import JsonResponse, HttpResponse, FileResponse
 import json
@@ -13,7 +16,6 @@ from manager.lib.static_response import *
 from django.core.files.storage import FileSystemStorage
 from order.models import Order
 from manager.lib.static_fun import admin_auth
-
 from mysite import settings
 
 
@@ -22,7 +24,7 @@ from mysite import settings
 def login(request):
     data = json.loads(request.body.decode('utf-8'))
     user_id = data['id']
-    password = data['password']
+    password = rsa_decode(data['password'])
     user = Student.objects.filter(student_id=user_id, password=password).first()
     login_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     if user:
@@ -58,15 +60,10 @@ def register(request):
     if Student.objects.filter(student_id=data['id']) or Admin.objects.filter(staff_id=data['id']):
         return user_has_exists()
 
-    response = check_attribute(data['password'], 'password')
+    password = rsa_decode(data['password'])
+    response = check_attribute(password, 'password')
     if response is not None:
         return response
-
-    if data['password'] != data['comfirmPassword']:
-        return JsonResponse({
-            'success': False,
-            'reason': '密码不一致'
-        }, status=404)
 
     if data['email'] is not None:
         response = check_attribute(data['email'], 'email')
@@ -88,7 +85,7 @@ def register(request):
                            email=data['email'],
                            phone=data['phone'],
                            academy=data['academy'],
-                           password=data['password'], )
+                           password=password)
     token = jwt.encode(
         {'id': data['id'], 'login_time': datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), 'role': 0},
         'secret_key', algorithm='HS256', headers=headers).decode('ascii')
@@ -156,16 +153,19 @@ def modify_password(request):
         return user_not_exists()
 
     data = json.loads(request.body.decode('utf-8'))
+    old_password = rsa_decode(data['old_password'])
+    password = rsa_decode(data['password'])
 
-    response = check_attribute(data['password'], 'password')
+    if user.password != old_password:
+        return password_not_match()
+
+    response = check_attribute(password, 'password')
     if response is not None:
         return response
 
-    if data['password'] == data['confirmPassword']:
-        user.password = data['password']
-        user.save()
-        return success_respond()
-    return password_not_match()
+    user.password = password
+    user.save()
+    return success_respond()
 
 
 def notice(request):
@@ -389,32 +389,66 @@ def check_attribute(str, type):
             return JsonResponse({
                 'success': False,
                 'reason': '密码需要包含数字和字母，且为6~16位'
-            })
+            }, status=404)
     elif type == "email":
         if re.search("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$", str) is None:
             return JsonResponse({
                 'success': False,
                 'reason': '邮箱格式错误'
-            })
+            }, status=404)
     elif type == "phone":
         if re.search("^\\d{11}$", str) is None:
             return JsonResponse({
                 'success': False,
                 'reason': '电话格式错误'
-            })
+            }, status=404)
     elif type == "id":
         if re.search("^(\d{8}|[A-Za-z]{2}\d{7})$", str) is None:
             return JsonResponse({
                 'success': False,
                 'reason': '学工号格式错误'
-            })
+            }, status=404)
     elif type == 'academy':
         if str > 100:
             return JsonResponse({
                 'success': False,
                 'reason': '学院号错误'
-            })
+            }, status=404)
     return None
+
+
+def get_public_key(request):
+    print(settings.public_key)
+    return JsonResponse({
+        'public_key': settings.public_key.decode()
+    })
+
+
+def password_encode(request):
+    data = json.loads(request.body.decode('utf-8'))
+    encoded_password = rsa_encode(data['password'])
+    return JsonResponse({
+        'encoded_password': encoded_password
+    })
+
+
+def rsa_decode(str):
+    print(str, type(str))
+    rsa_prk = RSA.importKey(settings.private_key)
+    rsa = PKCS1_v1_5.new(rsa_prk)
+    res = rsa.decrypt(base64.b64decode(str), None).decode('utf-8')
+    print(res, type(res))
+    return res
+
+
+def rsa_encode(str):
+    print(str, type(str))
+    rsa_pk = RSA.importKey(settings.public_key)
+    rsa = PKCS1_v1_5.new(rsa_pk)
+    res = rsa.encrypt(str.encode('utf-8'))
+    res = base64.b64encode(res).decode('utf-8')
+    print(res, type(res))
+    return res
 
 
 def get_order_log(request):
