@@ -6,9 +6,10 @@ import string
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_v1_5
 
-from django.http import JsonResponse, HttpResponse, FileResponse
+from django.http import JsonResponse
+from django.core.mail import send_mail
 import json
-from .models import Student, Admin, Notification, Picture, Push
+from .models import Student, Admin, Notification, Picture, Push, EmailVerify
 import datetime
 import jwt
 from manager.lib.static_fun import get_order_log_json
@@ -54,7 +55,7 @@ def register(request):
     data = json.loads(request.body.decode('utf-8'))
     print(data)
     response = check_attribute(data['id'], 'id')
-    if data['id'] is None or response is not None:
+    if response is not None:
         return response
 
     if Student.objects.filter(student_id=data['id']) or Admin.objects.filter(staff_id=data['id']):
@@ -65,24 +66,25 @@ def register(request):
     if response is not None:
         return response
 
-    if data['email'] is not None:
-        response = check_attribute(data['email'], 'email')
-        if response is not None:
-            return response
+    email = data['email']
+    response = check_attribute(email, 'email')
+    if response is not None:
+        return response
+
+    email_code = data['email_code']
+    verify = EmailVerify.objects.filter(email=email, code=email_code).first()
+
+    if not verify:
+        return verify_error()
 
     if data['phone'] is not None:
         response = check_attribute(data['phone'], 'phone')
         if response is not None:
             return response
 
-    if data['academy'] is not None:
-        response = check_attribute(data['academy'], 'academy')
-        if response is not None:
-            return response
-
     Student.objects.create(student_id=data['id'],
                            name=data['name'],
-                           email=data['email'],
+                           email=email,
                            phone=data['phone'],
                            academy=data['academy'],
                            password=password)
@@ -268,10 +270,6 @@ def edit_info(request):
             return user_has_exists()
 
     name = request.POST['name']
-    email = request.POST['email']
-    response = check_attribute(email, 'email')
-    if email != "" and response is not None:
-        return response
 
     phone = request.POST['phone']
     response = check_attribute(phone, 'phone')
@@ -292,8 +290,6 @@ def edit_info(request):
             user.student_id = id
         if name:
             user.name = name
-        if email:
-            user.email = email
         if phone:
             user.phone = phone
         if academy:
@@ -303,8 +299,6 @@ def edit_info(request):
             user.staff_id = id
         if name:
             user.name = name
-        if email:
-            user.email = email
         if phone:
             user.phone = phone
     user.save()
@@ -408,20 +402,41 @@ def check_attribute(str, type):
                 'success': False,
                 'reason': '学工号格式错误'
             }, status=404)
-    elif type == 'academy':
-        if str > 100:
-            return JsonResponse({
-                'success': False,
-                'reason': '学院号错误'
-            }, status=404)
+    # elif type == 'academy':
+    #     if len(str.toString()) > 2:
+    #         return JsonResponse({
+    #             'success': False,
+    #              'reason': '学院号错误'
+    #          }, status=404)
     return None
 
 
 def get_public_key(request):
-    print(settings.public_key)
+    # print(settings.public_key)
     return JsonResponse({
         'public_key': settings.public_key.decode()
     })
+
+
+def send_message(request):
+    data = json.loads(request.body.decode('utf-8'))
+    email = data['email']
+    response = check_attribute(email, 'email')
+    if response is not None:
+        return response
+
+    code = generate_random_string()
+    verify = EmailVerify()
+    verify.email = email
+    verify.code = code
+    verify.save()
+
+    title = "体验馆预约账号激活"
+    body = "您的邮箱注册验证码为：{0},请及时验证".format(code)
+    status = send_mail(title, body, settings.EMAIL_FROM, [email])
+    if not status:
+        return send_error()
+    return success_respond()
 
 
 def password_encode(request):

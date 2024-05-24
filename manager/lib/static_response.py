@@ -73,3 +73,11 @@ def time_index_illegal():
 
 def necessary_content_is_none(name):
     return JsonResponse({'success': False, 'reason': f'necessary {name} is none'}, status=404)
+
+
+def send_error():
+    return JsonResponse({'success': False, 'reason': 'send e_mail error'}, status=404)
+
+
+def verify_error():
+    return JsonResponse({'success': False, 'reason': 'e_mail code wrong'}, status=404)
