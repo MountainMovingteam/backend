@@ -342,16 +342,22 @@ def current_time_index():
 
 def get_order_log_json(order):
     place = order.place
+    if order.is_person:
+        type = 0
+    else:
+        type = 1
     week_num = place.week_num
     time_index = place.time_index
-    type = 0
+    status = order.status
+    is_expired = 0
     if current_time_index() >= time_index2fabs(week_num, time_index):
-        type = 1
+        is_expired = 1
 
-    return {
+    return is_expired, {
         'type': type,
         'week_num': week_num,
         'time_index': time_index,
+        'status': status,
         'lecturers': get_lecturers_accord_place(place)
     }
 

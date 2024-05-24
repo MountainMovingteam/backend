@@ -10,9 +10,6 @@ from manager.lib.static_response import *
 from manager.lib.static_fun import *
 
 
-# from ..manager.models import Lecturer, LecturerPlace
-
-
 # Create your views here.
 
 def person(request):
@@ -110,6 +107,42 @@ def get_info(request):
         }
         details.append(de)
     return JsonResponse(details, safe=False)
+
+
+def delete_order(request):
+    token = request.META.get('HTTP_AUTHORIZATION')
+    if not token:
+        return none_token()
+    id, role, is_login = check_token(token)
+    if not is_login:
+        return login_timeout()
+    user = get_user(id, role)
+    if user is None:
+        return user_not_exists()
+
+    data = json.loads(request.body.decode('utf-8'))
+    week_num = data['week_num']
+    time_index = data['time_index']
+
+    place = Place.objects.filter(week_num=week_num, time_index=time_index).first()
+    if place is None:
+        return place_not_exists()
+
+    order = Order.objects.filter(user_id=id, place=place).first()
+    if order is None:
+        return order_not_exists()
+
+    if current_time_index() >= time_index2fabs(week_num, time_index):
+        is_expired = True
+    else:
+        is_expired = False
+
+    if is_expired:
+        return order_has_expired()
+
+    order.delete()
+    return success_respond()
+
 
 
 def init_place(request):

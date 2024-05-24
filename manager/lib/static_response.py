@@ -47,6 +47,10 @@ def order_not_exists():
     return JsonResponse({'success': False, 'reason': 'order not exists'}, status=404)
 
 
+def order_has_expired():
+    return JsonResponse({'success': False, 'reason': 'order has expired'}, status=404)
+
+
 def order_type_wrong():
     return JsonResponse({'success': False, 'reason': 'order type is wrong'}, status=404)
 

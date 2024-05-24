@@ -12,7 +12,7 @@ import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import openpyxl
-from order.lib.order_fun import delete_order
+from order.lib.order_fun import reject_order
 
 
 # Create your views here.
@@ -126,7 +126,7 @@ def reject_application(request):
 
     id, role, login = check_token(request.META.get(HTTP_AUTHORIZATION))
     admin = get_user(id, 1)
-    response = delete_order(option, order_id, admin)
+    response = reject_order(option, order_id, admin)
     if response is not None:
         return response
 
