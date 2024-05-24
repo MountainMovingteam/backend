@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+import datetime
 
 
 # Create your models here.
@@ -14,6 +15,16 @@ class Student(models.Model):
 
     class Meta:
         db_table = 'Student'
+
+
+class EmailVerify(models.Model):
+    email = models.CharField(max_length=64)
+    code = models.CharField(max_length=256)
+    type = models.IntegerField(default=0)
+    time_slot = models.DateTimeField(default=datetime.datetime.now())
+
+    class Meta:
+        db_table = 'EmailVerify'
 
 
 class Admin(models.Model):
@@ -32,10 +43,11 @@ class Admin(models.Model):
 class Notification(models.Model):
     notification_id = models.CharField(max_length=32)
     student = models.ForeignKey(to="Student", on_delete=models.CASCADE)
-    reason = models.CharField(max_length=64)
+    reason = models.CharField(max_length=64, null=True)
+    #type = models.IntegerField()  # 0-驳回 1-提醒
     time_slot = models.CharField(max_length=256)
-    read = models.BooleanField()
-    admin = models.ForeignKey(to="Admin", on_delete=models.CASCADE)
+    read = models.BooleanField()  # 0-未读 1-已读
+    admin = models.ForeignKey(to="Admin", on_delete=models.CASCADE, null=True)
 
     class Meta:
         db_table = "Notification"
