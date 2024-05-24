@@ -485,6 +485,8 @@ def get_order_log(request):
     print("4")
     for order in list(orders):
         print("2")
-        ans.append(get_order_log_json(order))
+        is_expired, order_json = get_order_log_json(order)
+        if not is_expired:
+            ans.append(order_json)
 
     return JsonResponse({'list': ans})
