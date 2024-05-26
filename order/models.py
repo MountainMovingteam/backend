@@ -21,6 +21,7 @@ class Order(models.Model):
     academy = models.IntegerField()
     is_person = models.BooleanField()
     team = models.ForeignKey(to="Team", on_delete=models.CASCADE, null=True, blank=True)
+    status = models.IntegerField(default=0)          # 0-未被驳回 1-已被驳回
 
     class Meta:
         db_table = 'Order'

@@ -5,8 +5,8 @@ from base.models import Student, Admin, Notification
 from .static_response import *
 
 
-def delete_order(reason, order_id, admin):
-    # 删除order并增加通知
+def reject_order(reason, order_id, admin):
+    # 驳回order并增加通知
     response = None
     order = Order.objects.filter(id=order_id).first()
     if order is None:
@@ -22,7 +22,9 @@ def delete_order(reason, order_id, admin):
         response = role_wrong()
         return response
 
-    order.delete()
+    order.status = 1
+    order.save()
+
     count = Notification.objects.count()
     print(datetime.datetime.now())
     Notification.objects.create(notification_id=count + 1, student=user, admin=admin, reason=reason, read=False,

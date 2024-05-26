@@ -17,5 +17,6 @@ urlpatterns = [
     path("addPush", views.add_push),
     path("orderLog", views.get_order_log),
     path("getPublicKey", views.get_public_key),
+    path("register/sendMessage", views.send_message),
     path("passwordEncode", views.password_encode)
 ]
