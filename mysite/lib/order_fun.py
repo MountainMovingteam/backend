@@ -2,7 +2,7 @@ import datetime
 
 from order.models import Order
 from base.models import Student, Admin, Notification
-from manager.lib.static_response import *
+from .static_response import *
 
 
 def delete_order(reason, order_id, admin):

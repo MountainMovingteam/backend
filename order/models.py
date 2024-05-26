@@ -1,5 +1,5 @@
 from django.db import models
-from manager.lib.static_var import *
+from mysite.lib.static_var import *
 
 
 # Create your models here.

@@ -1,5 +1,5 @@
 from django.db import models
-from .lib.static_var import *
+from mysite.lib.static_var import *
 from django.core.validators import MinValueValidator, MaxValueValidator
 
 # Create your models here.

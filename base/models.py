@@ -53,7 +53,7 @@ class Push(models.Model):
     title = models.CharField(max_length=64)
     pre_content = models.CharField(max_length=64)
     picture = models.FileField(upload_to='pushes/')
-    address = models.CharField(max_length=256)
+    address = models.CharField(max_length=256, default=None)
 
     class Meta:
         db_table = 'Push'
