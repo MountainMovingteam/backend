@@ -71,5 +71,10 @@ if response is None and user is None:
     response = user_not_exists()
 """
 
+
+# -------------question-----------------
+MAX_TITLE_LEN = 1000
+MAX_CHOICE_LEN = 200
+
 if __name__ == '__main__':
     print(ADMIN_AUTH_STR)

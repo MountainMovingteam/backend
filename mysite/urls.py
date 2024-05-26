@@ -20,8 +20,10 @@ from django.conf.urls.static import static
 from django.conf import settings
 
 urlpatterns = [
-    path("api/base/", include("base.urls")),
-    path("api/manage/", include("manager.urls")),
-    path("api/order/", include("order.urls")),
-    path("admin/", admin.site.urls),
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+                  path("api/base/", include("base.urls")),
+                  path("api/manage/", include("manager.urls")),
+                  path("api/order/", include("order.urls")),
+                  path("api/problem/", include("problem.urls")),
+                  path("api/question/", include("question.urls")),
+                  path("admin/", admin.site.urls),
+              ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

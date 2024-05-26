@@ -11,11 +11,11 @@ import json
 from .models import Student, Admin, Notification, Picture, Push
 import datetime
 import jwt
-from manager.lib.static_fun import get_order_log_json
-from manager.lib.static_response import *
+from mysite.lib.static_fun import get_order_log_json
+from mysite.lib.static_response import *
 from django.core.files.storage import FileSystemStorage
 from order.models import Order
-from manager.lib.static_fun import admin_auth
+from mysite.lib.static_fun import admin_auth
 from mysite import settings
 
 
@@ -51,6 +51,7 @@ def login(request):
 
 
 def register(request):
+    print("1")
     data = json.loads(request.body.decode('utf-8'))
     print(data)
     response = check_attribute(data['id'], 'id')

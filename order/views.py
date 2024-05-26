@@ -1,13 +1,7 @@
 import json
-from .lib import time
-from django.shortcuts import render
-from django.views.decorators.csrf import csrf_exempt
-from django.http import JsonResponse, HttpResponse
-from .models import Place, Order, Team, TeamMember
-from manager.models import Lecturer, LecturerPlace
-from manager.lib.static_var import *
-from manager.lib.static_response import *
-from manager.lib.static_fun import *
+from mysite.lib import time
+from .models import Team
+from mysite.lib.static_fun import *
 
 
 # from ..manager.models import Lecturer, LecturerPlace

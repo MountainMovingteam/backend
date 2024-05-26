@@ -1,19 +1,11 @@
-from django.shortcuts import render
-from django.http import JsonResponse, HttpResponse
-import json
-import jwt
-import datetime
-from .lib.static_fun import *
-from .lib.static_var import *
-from .lib.static_response import *
-from .models import LecturerPlace, Lecturer
-from order.lib.time import *
-import smtplib
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
+from mysite.lib.static_fun import *
+from mysite.lib.static_var import *
+from mysite.lib.static_response import *
+from .models import Lecturer
+from mysite.lib.time import *
 import openpyxl
-from order.lib.order_fun import delete_order
-
+from mysite.lib.order_fun import delete_order
+import json
 
 # Create your views here.
 
@@ -208,7 +200,6 @@ def modify_lecture_info(request):
 
     old_lecturer = Lecturer.objects.filter(lecturer_id=old_lecturer_id).first()
 
-
     new_lecturer_id = data.get('num', None)
     if new_lecturer_id is None:
         return necessary_content_is_none('num')
@@ -223,7 +214,6 @@ def modify_lecture_info(request):
         return necessary_content_is_none('tag')
 
     time_index = data.get('time_index', None)
-
 
     if new_lecturer_id != old_lecturer_id and Lecturer.objects.filter(lecturer_id=new_lecturer_id).first() is not None:
         return lecturer_has_exists()

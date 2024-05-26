@@ -35,6 +35,8 @@ INSTALLED_APPS = [
     "base.apps.BaseConfig",
     "manager.apps.ManagerConfig",
     "order.apps.OrderConfig",
+    "question.apps.QuestionConfig",
+    "problem.apps.ProblemConfig",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",

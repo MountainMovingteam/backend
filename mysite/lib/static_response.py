@@ -73,3 +73,7 @@ def time_index_illegal():
 
 def necessary_content_is_none(name):
     return JsonResponse({'success': False, 'reason': f'necessary {name} is none'}, status=404)
+
+
+def problem_id_not_exists():
+    return JsonResponse({'success': False, 'reason': 'problem_id not exists'}, status=404)

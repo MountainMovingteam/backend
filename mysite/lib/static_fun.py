@@ -1,16 +1,15 @@
-from django.shortcuts import render
-from django.http import JsonResponse, HttpResponse
-import json
 import jwt
-import datetime
 from base.models import Student, Admin
 from manager.models import Lecturer, LecturerPlace
-from order.models import Order, Place, Team, TeamMember
-from order.lib.time import *
+from order.models import Order, TeamMember
+from mysite.lib.time import *
 from order.models import Place
 from rapidfuzz import fuzz
 from .static_var import *
 from .static_response import *
+import jieba
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
 
 
 def admin_auth(request):
@@ -363,3 +362,41 @@ def get_lecturers_accord_place(place):
         lecturers_set.add(lecturer.name)
 
     return list(lecturers_set)
+
+
+def question_json(question):
+    return {
+        "question_id": question.id,
+        "type": question.type,
+        "content": {
+            "a_option": question.A_content,
+            "b_option": question.B_content,
+            "c_option": question.C_content,
+            "d_option": question.D_content,
+            "title": question.title
+        }
+    }
+
+
+def chinese_tokenizer(text):
+    # 使用 jieba 进行中文分词
+    return jieba.lcut(text)
+
+
+def vector_match(question, keywords):
+    # 对问题和关键词进行分词
+    corpus = [question] + keywords
+    tokenized_corpus = [' '.join(chinese_tokenizer(doc)) for doc in corpus]
+
+    # 创建 TfidfVectorizer 对象，并使用分词后的文本
+    vectorizer = TfidfVectorizer()
+    vectors = vectorizer.fit_transform(tokenized_corpus).toarray()
+
+    # 计算余弦相似度矩阵
+    cosine_matrix = cosine_similarity(vectors)
+
+    # 提取关键词向量的相似度分数
+    keyword_scores = cosine_matrix[0, 1:]
+
+    # 设置一个相似度阈值，比如 0.1
+    return any(score > 0.1 for score in keyword_scores)
