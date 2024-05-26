@@ -5,7 +5,7 @@ from base.models import Student, Admin, Notification
 from .static_response import *
 
 
-def reject_order(reason, order_id, admin):
+def delete_order(reason, order_id, admin):
     # 驳回order并增加通知
     response = None
     order = Order.objects.filter(id=order_id).first()
