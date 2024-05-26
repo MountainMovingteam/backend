@@ -44,9 +44,9 @@ class Notification(models.Model):
     notification_id = models.CharField(max_length=32)
     student = models.ForeignKey(to="Student", on_delete=models.CASCADE)
     reason = models.CharField(max_length=64, null=True)
-    #type = models.IntegerField()  # 0-驳回 1-提醒
+    type = models.IntegerField(default=0)  # 0-驳回 1-提醒
     time_slot = models.CharField(max_length=256)
-    read = models.BooleanField()  # 0-未读 1-已读
+    read = models.BooleanField(default=0)  # 0-未读 1-已读
     admin = models.ForeignKey(to="Admin", on_delete=models.CASCADE, null=True)
 
     class Meta:

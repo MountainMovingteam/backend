@@ -13,10 +13,15 @@ from manager.lib.static_fun import *
 # Create your views here.
 
 def person(request):
-    response = user_auth(request)
-
-    if response is not None:
-        return response
+    token = request.META.get('HTTP_AUTHORIZATION')
+    if not token:
+        return none_token()
+    id, role, is_login = check_token(token)
+    if not is_login:
+        return login_timeout()
+    user = get_user(id, role)
+    if user is None:
+        return user_not_exists()
 
     data = json.loads(request.body.decode('utf-8'))
 
@@ -32,7 +37,7 @@ def person(request):
         return place_not_exists()
 
     if place.capacity > count_order(place.id):
-        Order.objects.create(place=place, user_id=data['id'], name=data['name'], phone=data['phone'],
+        Order.objects.create(place=place, user_id=id, name=data['name'], phone=data['phone'],
                              academy=data['academy'], is_person=True)
         return success_respond()
     else:
@@ -40,10 +45,15 @@ def person(request):
 
 
 def group(request):
-    response = user_auth(request)
-
-    if response is not None:
-        return response
+    token = request.META.get('HTTP_AUTHORIZATION')
+    if not token:
+        return none_token()
+    id, role, is_login = check_token(token)
+    if not is_login:
+        return login_timeout()
+    user = get_user(id, role)
+    if user is None:
+        return user_not_exists()
 
     data = json.loads(request.body.decode('utf-8'))
     week_num, time_index = time.trans_index(data['time_index'])
@@ -63,12 +73,12 @@ def group(request):
     if have_group(place.id):
         return place_has_group()
 
-    team = Team.objects.create(leader_name=data['leader']['name'], leader_id=data['leader']['id'],
+    team = Team.objects.create(leader_name=data['leader']['name'], leader_id=id,
                                leader_phone=data['leader']['phone'], academy=data['academy'])
     persons = data['persons']
     for person in persons:
         TeamMember.objects.create(team=team, member_id=person['id'], member_name=person['name'])
-    Order.objects.create(place=place, user_id=data['leader']['id'], name=data['leader']['name'],
+    Order.objects.create(place=place, user_id=id, name=data['leader']['name'],
                          phone=data['leader']['phone'],
                          academy=data['academy'], is_person=False, team=team)
     return success_respond()
