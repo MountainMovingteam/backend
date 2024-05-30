@@ -79,14 +79,13 @@ def necessary_content_is_none(name):
     return JsonResponse({'success': False, 'reason': f'necessary {name} is none'}, status=404)
 
 
-<<<<<<< HEAD:mysite/lib/static_response.py
 def problem_id_not_exists():
     return JsonResponse({'success': False, 'reason': 'problem_id not exists'}, status=404)
-=======
+
+
 def send_error():
     return JsonResponse({'success': False, 'reason': 'send e_mail error'}, status=404)
 
 
 def verify_error():
     return JsonResponse({'success': False, 'reason': 'e_mail code wrong'}, status=404)
->>>>>>> 2ba971f91c2ea0683f5b185d2a7fcbd68b2e9ef4:manager/lib/static_response.py

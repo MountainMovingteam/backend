@@ -11,16 +11,19 @@ import json
 def create_question(request):
     data = json.loads(request.body.decode('utf-8'))
 
+    type = data.get('type')
+
+    content = json.loads(data.get('content'))
+    A_content = content.get('a_option')
+    B_content = content.get('b_option')
+    C_content = content.get('c_option')
+    D_content = content.get('d_option')
+    answer = content.get('answer')
     title = data.get('title')
-    A_content = data.get('a_option')
-    B_content = data.get('b_option')
-    C_content = data.get('c_option')
-    D_content = data.get('d_option')
-    answer = data.get('answer')
 
     Question.objects.create(title=title, A_content=A_content,
                             B_content=B_content, C_content=C_content,
-                            D_content=D_content, answer=answer)
+                            D_content=D_content, answer=answer, type=type)
 
     return JsonResponse({'success': True})
 
