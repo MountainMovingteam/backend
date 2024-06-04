@@ -203,9 +203,9 @@ def paser_excel(request):
         if ws.cell(row=1, column=1).value == "学号" and ws.cell(row=1, column=2).value == "姓名":
             for row in ws.iter_rows(min_row=2):
                 person = {
-                        'name': row[1].value,
-                        'id': row[0].value
-                    }
+                    'name': str(row[1].value),
+                    'id': str(row[0].value)
+                }
                 result.append(person)
         else:
             return excel_error()
