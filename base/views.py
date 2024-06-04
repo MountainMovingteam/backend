@@ -52,7 +52,6 @@ def login(request):
 
 
 def register(request):
-    print("1")
     data = json.loads(request.body.decode('utf-8'))
     print(data)
     response = check_attribute(data['id'], 'id')
@@ -89,6 +88,7 @@ def register(request):
                            phone=data['phone'],
                            academy=data['academy'],
                            password=password)
+    verify.delete()
     token = jwt.encode(
         {'id': data['id'], 'login_time': datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), 'role': 0},
         'secret_key', algorithm='HS256', headers=headers).decode('ascii')
@@ -462,16 +462,17 @@ def send_message(request):
         return response
 
     code = generate_random_string()
-    verify = EmailVerify()
-    verify.email = email
-    verify.code = code
-    verify.save()
 
     title = "体验馆预约账号激活"
     body = "您的邮箱注册验证码为：{0},请及时验证".format(code)
     status = send_mail(title, body, settings.EMAIL_FROM, [email])
     if not status:
         return send_error()
+    EmailVerify.objects.delete(email=email)
+    verify = EmailVerify()
+    verify.email = email
+    verify.code = code
+    verify.save()
     return success_respond()
 
 
