@@ -1,3 +1,4 @@
+import django
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 import datetime
@@ -21,7 +22,7 @@ class EmailVerify(models.Model):
     email = models.CharField(max_length=64)
     code = models.CharField(max_length=256)
     type = models.IntegerField(default=0)
-    time_slot = models.DateTimeField(default=datetime.datetime.now())
+    #time_slot = models.DateTimeField(default=django.utils.timezone.now)
 
     class Meta:
         db_table = 'EmailVerify'
