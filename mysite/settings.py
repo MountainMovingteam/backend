@@ -33,6 +33,7 @@ ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = [
     "base.apps.BaseConfig",
+    "django_celery_beat",
     "manager.apps.ManagerConfig",
     "order.apps.OrderConfig",
     "question.apps.QuestionConfig",
@@ -78,6 +79,11 @@ CORS_ALLOW_HEADERS = ('*')
 CORS_ALLOWED_ORIGIN_REGEXES = [
     r"^https://\w+\.example\.com$",
 ]
+
+# Celery 配置
+CELERY_BROKER_URL = 'redis://localhost:6379/0'  # 使用 Redis 作为消息代理
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'  # 存储结果也使用 Redis
+CELERY_TIMEZONE = 'UTC'  # 设置时区
 
 # 配置允许的请求方式
 CORS_ALLOW_METHODS = [

@@ -12,7 +12,7 @@ import json
 from .models import Student, Admin, Notification, Picture, Push, EmailVerify
 import datetime
 import jwt
-from mysite.lib.static_fun import get_order_log_json
+from mysite.lib.static_fun import *
 from mysite.lib.static_response import *
 from django.core.files.storage import FileSystemStorage
 from order.models import Order
@@ -189,7 +189,9 @@ def notice(request):
         notice_list.append({
             'notice_id': no.notification_id,
             'time': no.time_slot,
-            'key_words': no.reason
+            'key_words': no.reason,
+            'type': no.type,
+            'status': no.read
         })
     return JsonResponse({
         'num': len(nos),
@@ -211,11 +213,42 @@ def notice_info(request):
 
     data = json.loads(request.body.decode('utf-8'))
     no = Notification.objects.filter(student=user, notification_id=data['notice_id']).first()
+    if no.type == 0:
+        content = "抱歉，因为" + no.reason + ",您的参观请求已被驳回"
+    else:
+        content = "您有近期的体验馆预约，请及时参加"
     return JsonResponse({
         'time': no.time_slot,
-        'content': "抱歉，因为" + no.reason + ",您的参观请求已被驳回",
+        'content': content,
         'key_word': no.reason
     })
+
+
+def notice_read(request):
+    response = user_auth(request)
+    if response is not None:
+        return response
+
+    data = json.loads(request.body.decode('utf-8'))
+    no = Notification.objects.filter(notification_id=data['notification_id']).first()
+    if no is not None:
+        no.read = 1
+        no.save()
+        return success_respond()
+    return notification_not_exists()
+
+
+def notice_delete(request):
+    response = user_auth(request)
+    if response is not None:
+        return response
+
+    data = json.loads(request.body.decode('utf-8'))
+    no = Notification.objects.filter(notification_id=data['notification_id']).first()
+    if no is not None:
+        no.delete()
+        return success_respond()
+    return notification_not_exists()
 
 
 def pictures(request):
@@ -261,6 +294,8 @@ def edit_info(request):
         return user_not_exists()
 
     fs = FileSystemStorage()
+
+    print(request)
 
     new_id = request.POST['id']
     response = check_attribute(new_id, 'id')

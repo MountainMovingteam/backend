@@ -93,3 +93,7 @@ def verify_error():
 
 def excel_error():
     return JsonResponse({'success': False, 'reason': 'excel error'}, status=404)
+
+
+def notification_not_exists():
+    return JsonResponse({'success': False, 'reason': 'notification not exists'}, status=404)
