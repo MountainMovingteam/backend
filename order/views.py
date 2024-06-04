@@ -1,4 +1,8 @@
 import json
+
+import openpyxl
+import xlrd
+
 from mysite.lib import time
 from .models import Team
 from mysite.lib.static_fun import *
@@ -148,7 +152,6 @@ def delete_order(request):
     return success_respond()
 
 
-
 def init_place(request):
     response = admin_auth(request)
     if response is not None:
@@ -181,3 +184,34 @@ def count_order(place_id):
 def have_group(place_id):
     count = Order.objects.filter(place_id=place_id, is_person=False).count()
     return count == 1
+
+
+def paser_excel(request):
+    response = user_auth(request)
+
+    if response is not None:
+        return response
+
+    result = []
+
+    if request.FILES.get('file', None):
+        excel = request.FILES['file']
+        wb = openpyxl.load_workbook(excel)
+        print(wb)
+        ws = wb.active
+        print(ws)
+        if ws.cell(row=1, column=1).value == "学号" and ws.cell(row=1, column=2).value == "姓名":
+            for row in ws.iter_rows(min_row=2):
+                person = {
+                        'name': row[1].value,
+                        'id': row[0].value
+                    }
+                result.append(person)
+        else:
+            return excel_error()
+        return JsonResponse({
+            "list": result
+        })
+    else:
+        print("none file")
+        return excel_error()
