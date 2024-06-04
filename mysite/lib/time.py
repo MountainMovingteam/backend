@@ -35,5 +35,5 @@ def trans_index(time_index):
 
 
 if __name__ == '__main__':
-    get_week_num()
-    get_week_day()
+    print(get_week_num())
+    print(get_week_day())

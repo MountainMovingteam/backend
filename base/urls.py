@@ -10,6 +10,8 @@ urlpatterns = [
     path("modify/password", views.modify_password),
     path("notice", views.notice),
     path("notice/info", views.notice_info),
+    path("read", views.notice_read),
+    path("notice/delete", views.notice_delete),
     path("pictures", views.pictures),
     path("push", views.push),
     path("editInfo", views.edit_info),
