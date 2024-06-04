@@ -89,3 +89,7 @@ def send_error():
 
 def verify_error():
     return JsonResponse({'success': False, 'reason': 'e_mail code wrong'}, status=404)
+
+
+def excel_error():
+    return JsonResponse({'success': False, 'reason': 'excel error'}, status=404)

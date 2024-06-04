@@ -8,5 +8,6 @@ urlpatterns = [
     path("getInfo", views.get_info),
     path("init/place", views.init_place),
     path("reset/place", views.clear_place),
-    path("delete", views.delete_order)
+    path("delete", views.delete_order),
+    path("file", views.paser_excel)
 ]
