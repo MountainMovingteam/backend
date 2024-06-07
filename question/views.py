@@ -9,17 +9,19 @@ import json
 # Create your views here.
 
 def create_question(request):
+
     data = json.loads(request.body.decode('utf-8'))
 
     type = data.get('type')
 
-    content = json.loads(data.get('content'))
+    content = data.get('content')
     A_content = content.get('a_option')
     B_content = content.get('b_option')
     C_content = content.get('c_option')
     D_content = content.get('d_option')
     answer = content.get('answer')
-    title = data.get('title')
+    title = content.get('title')
+
 
     Question.objects.create(title=title, A_content=A_content,
                             B_content=B_content, C_content=C_content,
@@ -69,14 +71,15 @@ def query_answer(request):
         return necessary_content_is_none('question_list')
 
     correct_num = 0
-
+    print(question_list)
     res_list = []
     for each_question in question_list:
+        print(each_question)
         correct = False
-        question_id = json.loads(each_question).get('question_id')
-        student_ans = json.loads(each_question).get('student_answer')
+        question_id = each_question.get('question_id')
+        student_ans = each_question.get('student_answer')
 
-        question = Question.objects.filter(id=question_id)
+        question = Question.objects.filter(id=question_id).first()
 
         if question.answer == student_ans:
             correct = True

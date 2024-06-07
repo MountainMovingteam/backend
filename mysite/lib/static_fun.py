@@ -391,7 +391,7 @@ def chinese_tokenizer(text):
 
 def vector_match(question, keywords):
     # 对问题和关键词进行分词
-    corpus = [question] + keywords
+    corpus = [question] + [keywords]
     tokenized_corpus = [' '.join(chinese_tokenizer(doc)) for doc in corpus]
 
     # 创建 TfidfVectorizer 对象，并使用分词后的文本
