@@ -10,7 +10,9 @@ from mysite.lib.static_fun import vector_match, user_auth
 
 
 def create_problem(request):
-    data = json.loads(request.body.decode('utf-8'))
+    print(request.body.decode('utf-8'))
+    data_str = request.body.decode('utf-8')
+    data = json.loads(data_str)
     question = data.get("question")
     answer = data.get("answer")
 
