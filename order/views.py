@@ -202,11 +202,14 @@ def paser_excel(request):
         print(ws)
         if ws.cell(row=1, column=1).value == "学号" and ws.cell(row=1, column=2).value == "姓名":
             for row in ws.iter_rows(min_row=2):
-                person = {
-                    'name': str(row[1].value),
-                    'id': str(row[0].value)
-                }
-                result.append(person)
+                r1 = str(row[1].value)
+                r0 = str(row[0].value)
+                if r1 is not None and r1 != "" and r0 is not None and r0 != "":
+                    person = {
+                        'name': r1,
+                        'id': r0
+                    }
+                    result.append(person)
         else:
             return excel_error()
         return JsonResponse({
