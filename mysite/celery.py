@@ -1,18 +1,18 @@
-from __future__ import absolute_import, unicode_literals
-import os
-import django
-from celery import Celery
-from django.conf import settings
-from base.models import Notification, Student
-from order.models import Order, Place
-from mysite.lib.time import *
-
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'mysite.settings')
-django.setup()
-
-celery_app = Celery('mysite')
-celery_app.config_from_object('django.conf:settings', namespace='CELERY')
-celery_app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)
+# from __future__ import absolute_import, unicode_literals
+# import os
+# import django
+# from celery import Celery
+# from django.conf import settings
+# from base.models import Notification, Student
+# from order.models import Order, Place
+# from mysite.lib.time import *
+#
+# os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'mysite.settings')
+# django.setup()
+#
+# celery_app = Celery('mysite')
+# celery_app.config_from_object('django.conf:settings', namespace='CELERY')
+# celery_app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)
 
 
 """@app.task(bind=True)
