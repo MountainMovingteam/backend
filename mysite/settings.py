@@ -14,6 +14,7 @@ from pathlib import Path
 
 from Crypto import Random
 from Crypto.PublicKey import RSA
+from celery.schedules import crontab
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -152,7 +153,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = "UTC"
+TIME_ZONE = 'Asia/Shanghai'
 
 USE_I18N = True
 
@@ -183,3 +184,18 @@ EMAIL_HOST_PASSWORD = 'QLOEUDEDKBBQGWUS'  # 在邮箱中设置的客户端授权
 EMAIL_FROM = 'mmt12342024@163.com'
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 EMAIL_USE_TLS = False  # 是否使用TLS安全传输协议
+
+BROKER_URL = 'redis://127.0.0.1:6379/0'
+CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/0'
+CELERY_TASK_RESULT_EXPIRES = 60 * 60 * 24  # 过期时间
+CELERY_TIMEZONE = 'Asia/Shanghai'
+CELERY_IMPORTS = (
+    'base.task'
+)
+# 定时任务
+CELERYBEAT_SCHEDULE = {
+    'every_day': {
+        'task': 'base.task.order_remind',
+        'schedule': crontab(hour=17, minute=0)
+    }
+}
