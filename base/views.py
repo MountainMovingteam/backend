@@ -26,9 +26,12 @@ def login(request):
     data = json.loads(request.body.decode('utf-8'))
     user_id = data['id']
     password = rsa_decode(data['password'])
-    user = Student.objects.filter(student_id=user_id, password=password).first()
+    user = Student.objects.filter(student_id=user_id).first()
     login_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     if user:
+        if user.password != password:
+            return password_not_match()
+
         token = jwt.encode({'id': data['id'], 'login_time': login_time, 'role': 0}, 'secret_key', algorithm='HS256',
                            headers=headers).decode('ascii')
         rep = JsonResponse({
@@ -37,8 +40,11 @@ def login(request):
         })
         return rep
     else:
-        user = Admin.objects.filter(staff_id=user_id, password=password).first()
+        user = Admin.objects.filter(staff_id=user_id).first()
         if user:
+            if user.password != password:
+                return password_not_match()
+
             token = jwt.encode({'id': data['id'], 'login_time': login_time, 'role': 1}, 'secret_key', algorithm='HS256',
                                headers=headers).decode('ascii')
 
@@ -468,7 +474,8 @@ def send_message(request):
     status = send_mail(title, body, settings.EMAIL_FROM, [email])
     if not status:
         return send_error()
-    EmailVerify.objects.delete(email=email)
+    if EmailVerify.objects.count() != 0:
+        EmailVerify.objects.delete(email=email)
     verify = EmailVerify()
     verify.email = email
     verify.code = code
