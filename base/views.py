@@ -474,8 +474,8 @@ def send_message(request):
     status = send_mail(title, body, settings.EMAIL_FROM, [email])
     if not status:
         return send_error()
-    if EmailVerify.objects.count() != 0:
-        EmailVerify.objects.delete(email=email)
+    #if EmailVerify.objects.count() != 0:
+    #    EmailVerify.objects.filter(email=email).delete()
     verify = EmailVerify()
     verify.email = email
     verify.code = code
