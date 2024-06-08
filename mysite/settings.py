@@ -178,12 +178,12 @@ public_key = key.publickey().export_key()
 # 邮件相关配置
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'  # 发送邮件配置
 EMAIL_HOST = 'smtp.163.com'  # 服务器名称
-EMAIL_PORT = 25  # 服务端口
+EMAIL_PORT = 465  # 服务端口
 EMAIL_HOST_USER = 'mmt12342024@163.com'  # 邮箱
 EMAIL_HOST_PASSWORD = 'QLOEUDEDKBBQGWUS'  # 在邮箱中设置的客户端授权密码
 EMAIL_FROM = 'mmt12342024@163.com'
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
-EMAIL_USE_TLS = False  # 是否使用TLS安全传输协议
+EMAIL_USE_SSL = True  # 是否使用TLS安全传输协议
 
 BROKER_URL = 'redis://127.0.0.1:6379/0'
 CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/0'
