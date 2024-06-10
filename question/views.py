@@ -1,15 +1,16 @@
 from django.shortcuts import render
 import json
 from mysite.lib.static_response import *
-from .models import Question
-from mysite.lib.static_fun import user_auth, question_json
+from .models import Question, StudentMapQuestion
+from mysite.lib.static_fun import user_auth, question_json, check_token, get_user
+from mysite.lib.static_var import HTTP_AUTHORIZATION
+
 import json
 
 
 # Create your views here.
 
 def create_question(request):
-
     data = json.loads(request.body.decode('utf-8'))
 
     type = data.get('type')
@@ -21,7 +22,6 @@ def create_question(request):
     D_content = content.get('d_option')
     answer = content.get('answer')
     title = content.get('title')
-
 
     Question.objects.create(title=title, A_content=A_content,
                             B_content=B_content, C_content=C_content,
@@ -58,6 +58,10 @@ def query_answer(request):
     if response is not None:
         return response
 
+    token = request.META.get(HTTP_AUTHORIZATION)
+    id, role, is_login = check_token(token)
+    student = get_user(id, role)
+
     data = json.loads(request.body.decode('utf-8'))
 
     question_num = data.get('question_num', None)
@@ -88,10 +92,59 @@ def query_answer(request):
         res_list.append({
             'question_id': question_id,
             'correct': correct,
-            'correct_ans': question.answer
+            'correct_ans': question.answer,
+            'student_ans': student_ans
         })
+        if StudentMapQuestion.objects.filter(user=student, question=question) is not None:
+            StudentMapQuestion.objects.filter(user=student, question=question).delete()
 
+        StudentMapQuestion.objects.create(user=student, question=question, student_ans=student_ans)
+
+    correct_rate = 0
+    if question_num != 0:
+        correct_rate = correct_num / question_num
     return JsonResponse({
         'list': res_list,
-        'correct_rate': correct_num / question_num
+        'correct_rate': correct_rate
+    })
+
+
+def query_history(request):
+    response = user_auth(request)
+
+    if response is not None:
+        return response
+
+    token = request.META.get(HTTP_AUTHORIZATION)
+    id, role, is_login = check_token(token)
+    user = get_user(id, role)
+
+    history_list = StudentMapQuestion.objects.filter(user=user)
+
+    question_num = len(history_list)
+    correct_num = 0
+    ans_list = []
+    for each_history in history_list:
+        question = each_history.question
+        student_ans = each_history.student_ans
+        is_correct = False
+        if student_ans == question.answer:
+            correct_num = correct_num + 1
+            is_correct = True
+
+        ans_list.append({
+            'question_id': question.id,
+            'correct': is_correct,
+            'correct_ans': question.answer,
+            'student_ans': student_ans
+        })
+    if question_num == 0:
+        correct_rate = 0
+    else:
+        correct_rate = correct_num / question_num
+
+    return JsonResponse({
+        'question_num': question_num,
+        'correct_rate': correct_rate,
+        'list': ans_list
     })
