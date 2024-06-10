@@ -276,7 +276,8 @@ def gen_order_json(order):
         'order_type': order_type,
         'name': order.name,
         'id': order.user_id,
-        'phone': order.phone
+        'phone': order.phone,
+        'status': order.status
 
     }
 
