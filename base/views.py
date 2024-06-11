@@ -166,7 +166,7 @@ def modify_password(request):
     password = rsa_decode(data['password'])
 
     if user.password != old_password:
-        return password_not_match()
+        return old_password_not_match()
 
     response = check_attribute(password, 'password')
     if response is not None:

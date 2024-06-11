@@ -31,6 +31,10 @@ def password_not_match():
     return JsonResponse({'success': False, 'reason': '密码错误'}, status=404)
 
 
+def old_password_not_match():
+    return JsonResponse({'success': False, 'reason': '原密码错误'}, status=404)
+
+
 def place_not_exists():
     return JsonResponse({'success': False, 'reason': '该场次不存在'}, status=404)
 
