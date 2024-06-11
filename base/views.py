@@ -360,7 +360,7 @@ def add_picture(request):
         picture.image = filename
         picture.save()
         return success_respond()
-    return JsonResponse({'success': False, 'reason': 'no picture'}, status=404)
+    return JsonResponse({'success': False, 'reason': '缺少图片'}, status=404)
 
 
 def add_push(request):
