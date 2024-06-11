@@ -25,7 +25,7 @@ def delete_order(reason, order_id, admin):
     order.status = 1
     order.save()
 
-    count = Notification.objects.count()
+    count = Notification.objects.all().aggregate(Max('id')).get('id__max')
     print(datetime.datetime.now())
     Notification.objects.create(notification_id=count + 1, student=user, admin=admin, reason=reason, read=False,
                                 time_slot=datetime.datetime.now().strftime("%Y-%m-%d"))
