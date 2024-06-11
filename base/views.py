@@ -238,7 +238,7 @@ def notice_read(request):
     data = json.loads(request.body.decode('utf-8'))
     no = Notification.objects.filter(notification_id=data['notification_id']).first()
     if no is not None:
-        no.read = 1
+        no.read = True
         no.save()
         return success_respond()
     return notification_not_exists()

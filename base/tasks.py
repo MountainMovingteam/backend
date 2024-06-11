@@ -19,7 +19,7 @@ def order_remind():
     orders = Order.objects.filter(place__in=places)
     for order in orders:
         user = Student.objects.filter(id=order.student_id).first()
-        count = Notification.objects.count()
+        count = Notification.objects.all().aggregate(Max('id')).get('id__max')
         Notification.objects.create(notification_id=count + 1, student=user, reason="预约提醒",
                                     time_slot=datetime.datetime.now().strftime("%Y-%m-%d"))
     print("order_remind_finish")

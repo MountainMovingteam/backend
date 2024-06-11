@@ -93,7 +93,7 @@ def get_info(request):
         week_num, new_time_index = time.trans_index(time_index)
         place = Place.objects.filter(week_num=week_num, time_index=new_time_index).first()
         if place is None:
-            return place_not_exists()
+            continue
         capacity = 20
         enrolled = count_order(place.id)
         lecturer = ""
