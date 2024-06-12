@@ -202,12 +202,21 @@ def paser_excel(request):
         print(ws)
         if ws.cell(row=1, column=1).value == "学号" and ws.cell(row=1, column=2).value == "姓名":
             for row in ws.iter_rows(min_row=2):
-                r1 = str(row[1].value)
-                r0 = str(row[0].value)
-                if r1 is not None and r1 != "" and r0 is not None and r0 != "":
+                r1 = row[1].value
+                r0 = row[0].value
+                print(r1, r0)
+                print(type(r1),type(r0))
+                if (r1 is None or r1 == "") and (r0 is None or r0 == ""):
+                    continue
+                else:
+                    name = id = ''
+                    if r1:
+                        name = str(r1)
+                    if r0:
+                        id = str(r0)
                     person = {
-                        'name': r1,
-                        'id': r0
+                        'name': name,
+                        'id': id
                     }
                     result.append(person)
         else:
