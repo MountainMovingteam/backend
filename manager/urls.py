@@ -15,5 +15,6 @@ urlpatterns = [
     path("lecturer/add", views.add_lecturer),
     path("lecturer/delete", views.delete_lecturer),
     path("lecturerAll", views.delete_all_lecturer),
-    path("lecturer/upload", views.lecturer_file_upload)
+    path("lecturer/upload", views.lecturer_file_upload),
+    path("order/history", views.query_order)
 ]

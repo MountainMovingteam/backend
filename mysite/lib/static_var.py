@@ -35,7 +35,7 @@ WEEK_TIME_NUM = 28  # 一周总共有多少个时段
 RATIO_NUM = 50
 
 PLACE_CAPACITY = 20  # 场地的最大容量
-WEEK_NUM = 16  # 一个学期有多少周
+WEEK_NUM = 18  # 一个学期有多少周
 TIMR_INDEX_NUM = 56  # 一周最大的时段数量
 HTTP_AUTHORIZATION = 'HTTP_AUTHORIZATION'
 ADMIN_ROLE = 1
