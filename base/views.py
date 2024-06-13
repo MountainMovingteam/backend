@@ -271,9 +271,9 @@ def pictures(request):
 def push(request):
     data = json.loads(request.body.decode('utf-8'))
     total = Push.objects.count()
-    pushes = Push.objects.filter(push_id__range=(data['start'], data['end']))
+    pushes = Push.objects.all()
     list = []
-    for push in pushes:
+    for push in pushes[data['start']-1:data['end']]:
         print(push.address)
         list.append({
             'id': push.push_id,
