@@ -1,3 +1,5 @@
+from django.db.models import Q
+
 from mysite.lib.static_fun import *
 from mysite.lib.static_var import *
 from mysite.lib.static_response import *
@@ -332,23 +334,25 @@ def query_order_history(request):
     his_list = []
     # 上一周
     if week_num > 1:
-        for wd in [0, 7]:
+        for wd in range(0, 7):
             wd4 = wd * 4
-            range = [wd4 + 1, wd4 + 2, wd4 + 3, wd4 + 4, wd4 + 29, wd4 + 30, wd4 + 31, wd4 + 32]
-            places = Place.objects.filter(week_num=week_num - 1, time_index__range=range).all()
-            order_num = Order.objects.filter(place__range=places).all().count()
+            index_range = [wd4 + 1, wd4 + 2, wd4 + 3, wd4 + 4, wd4 + 29, wd4 + 30, wd4 + 31, wd4 + 32]
+            query = Q(place__week_num=week_num - 1, place__time_index__in=index_range)
+            orders = Order.objects.filter(query)
+            order_num = orders.count()
             his_list.append({
                 'day_index': wd + 1,
                 'number': order_num
             })
-    # 这一周
-    for wd in [0, week_day]:
+        # 这一周
+    for wd in range(0, week_day + 1):
         wd4 = wd * 4
-        range = [wd4 + 1, wd4 + 2, wd4 + 3, wd4 + 4, wd4 + 29, wd4 + 30, wd4 + 31, wd4 + 32]
-        places = Place.objects.filter(week_num=week_num, time_index__range=range).all()
-        order_num = Order.objects.filter(place__range=places).all().count()
+        index_range = [wd4 + 1, wd4 + 2, wd4 + 3, wd4 + 4, wd4 + 29, wd4 + 30, wd4 + 31, wd4 + 32]
+        query = Q(place__week_num=week_num, place__time_index__in=index_range)
+        orders = Order.objects.filter(query)
+        order_num = orders.count()
         his_list.append({
-            'day_index': wd + 1,
+            'day_index': wd + 8,
             'number': order_num
         })
     return JsonResponse({
