@@ -3,6 +3,7 @@ import datetime
 from order.models import Order
 from base.models import Student, Admin, Notification
 from .static_response import *
+from django.db.models import Max
 
 
 def delete_order(reason, order_id, admin):
@@ -25,8 +26,10 @@ def delete_order(reason, order_id, admin):
     order.status = 1
     order.save()
 
-    count = Notification.objects.all().aggregate(Max('id')).get('id__max')
-    print(datetime.datetime.now())
+    count = Notification.objects.all().aggregate(Max('id'))
+    print(count)
+    count = count.get("id__max")
+    print(count)
     Notification.objects.create(notification_id=count + 1, student=user, admin=admin, reason=reason, read=False,
                                 time_slot=datetime.datetime.now().strftime("%Y-%m-%d"))
     return response
