@@ -15,7 +15,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 def admin_auth(request):
     response = None
     token = request.META.get(HTTP_AUTHORIZATION)
-    if len(token) == 0 and response is None:
+    if token is None or len(token) == 0:
         response = none_token()
 
     if response is None:
@@ -39,7 +39,7 @@ def admin_auth(request):
 def user_auth(request):
     response = None
     token = request.META.get(HTTP_AUTHORIZATION)
-    if len(token) == 0 and response is None:
+    if token is None or len(token) == 0:
         response = none_token()
 
     if response is None:
