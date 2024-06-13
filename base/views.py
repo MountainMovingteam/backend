@@ -33,7 +33,7 @@ def login(request):
             return password_not_match()
 
         token = jwt.encode({'id': data['id'], 'login_time': login_time, 'role': 0}, 'secret_key', algorithm='HS256',
-                           headers=headers).decode('ascii')
+                           headers=headers)#.decode('ascii')
         rep = JsonResponse({
             'token': token,
             'role': 0

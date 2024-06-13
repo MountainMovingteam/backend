@@ -7,6 +7,7 @@ import openpyxl
 from mysite.lib.order_fun import delete_order
 import json
 
+
 # Create your views here.
 
 
@@ -318,3 +319,38 @@ def lecturer_file_upload(request):
         assign_lecture_session(num, time_index)
 
     return get_lecturer_json_array(new_lecturer_list)
+
+
+def query_order_history(request):
+    response = admin_auth(request)
+
+    if response is not None:
+        return response
+
+    week_num = get_week_num()
+    week_day = get_week_day()
+    his_list = []
+    # 上一周
+    if week_num > 1:
+        for wd in [0, 7]:
+            wd4 = wd * 4
+            range = [wd4 + 1, wd4 + 2, wd4 + 3, wd4 + 4, wd4 + 29, wd4 + 30, wd4 + 31, wd4 + 32]
+            places = Place.objects.filter(week_num=week_num - 1, time_index__range=range).all()
+            order_num = Order.objects.filter(place__range=places).all().count()
+            his_list.append({
+                'day_index': wd + 1,
+                'number': order_num
+            })
+    # 这一周
+    for wd in [0, week_day]:
+        wd4 = wd * 4
+        range = [wd4 + 1, wd4 + 2, wd4 + 3, wd4 + 4, wd4 + 29, wd4 + 30, wd4 + 31, wd4 + 32]
+        places = Place.objects.filter(week_num=week_num, time_index__range=range).all()
+        order_num = Order.objects.filter(place__range=places).all().count()
+        his_list.append({
+            'day_index': wd + 1,
+            'number': order_num
+        })
+    return JsonResponse({
+        'list': his_list
+    })
